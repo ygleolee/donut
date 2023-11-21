@@ -27,6 +27,31 @@ void cube(double len=50, double dX=0.08, double dY=0.04, double dZ=0.04, vec lig
   draw(pts, nor, dX, dY, dZ, light_dir, iter);
 }
 
+void cuboid(double a=60, double b=45, double c=30, double dX=0.08, double dY=0.04, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}, long long iter=10000) {
+  vector<vec> pts, nor;
+  double inc=0.5;
+  for (double i=-a/2; i<=a/2; i+=inc) {
+    for (double j=-b/2; j<=b/2; j+=inc) {
+      pts.push_back({i, j,  c/2}); nor.push_back({0, 0,  1});
+      pts.push_back({i, j, -c/2}); nor.push_back({0, 0, -1});
+    }
+  }
+  for (double i=-b/2; i<=b/2; i+=inc) {
+    for (double j=-c/2; j<=c/2; j+=inc) {
+      pts.push_back({ a/2, i, j}); nor.push_back({ 1, 0, 0});
+      pts.push_back({-a/2, i, j}); nor.push_back({-1, 0, 0});
+    }
+  }
+  for (double i=-a/2; i<=a/2; i+=inc) {
+    for (double j=-c/2; j<=c/2; j+=inc) {
+      pts.push_back({i,  b/2, j}); nor.push_back({0,  1, 0});
+      pts.push_back({i, -b/2, j}); nor.push_back({0, -1, 0});
+    }
+  }
+  draw(pts, nor, dX, dY, dZ, light_dir, iter);
+}
+
+
 void sphere(double r=20, double dX=0.08, double dY=0.04, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {15, 15, 0}, long long iter=10000) {
   vector<vec> pts, nor;
   for (double the=0; the<6.28; the+=0.05) {
@@ -35,6 +60,20 @@ void sphere(double r=20, double dX=0.08, double dY=0.04, double dZ=0.04, vec lig
       double cp=cos(phi), sp=sin(phi);
       pts.push_back({r*ct*sp, r*st*sp, r*cp});
       nor.push_back({r*ct*sp, r*st*sp, r*cp});
+    }
+  }
+  for (int i=0; i<pts.size(); ++i) pts[i] = add(pts[i], disp);
+  draw(pts, nor, dX, dY, dZ, light_dir, iter);
+}
+
+void ellipsoid(double a=25, double b=32, double c=30, double l=50, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}, long long iter=10000) {
+  vector<vec> pts, nor;
+  for (double the=0; the<6.28; the+=0.02) {
+    double ct=cos(the), st=sin(the);
+    for (double phi=0; phi<3.14; phi+=0.02) {
+      double cp=cos(phi), sp=sin(phi);
+      pts.push_back({ct*sp*a, st*sp*b, cp*c});
+      nor.push_back({ct*sp/a, st*sp/b, cp/c});
     }
   }
   for (int i=0; i<pts.size(); ++i) pts[i] = add(pts[i], disp);
@@ -63,4 +102,9 @@ void ch4(double r1=20, double r2=8, double l=50, double dX=0.08, double dY=0.02,
 
 void cone(double r=20, double h=40, double l=50, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}, long long iter=10000) {
 }
+void droplet(double r=20, double h=40, double l=50, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}, long long iter=10000) {
+}
+void pill(double r=20, double h=40, double l=50, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}, long long iter=10000) {
+}
+
 
