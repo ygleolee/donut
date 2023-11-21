@@ -1,10 +1,8 @@
-#include "./ascii_art.h"
-
-void donut(double r1=10, double r2=25, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}, long long iter=10000) {
+void donut(double r1=12, double r2=30, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}, long long iter=10000) {
   vector<vec> pts, nor;
-  for (double phi=0; phi<6.28; phi+=0.01) {
+  for (double phi=0; phi<6.28; phi+=0.015) {
     double cp=cos(phi), sp=sin(phi);
-    for (double the=0; the<6.28; the+=0.04) {
+    for (double the=0; the<6.28; the+=0.03) {
       double ct=cos(the), st=sin(the);
       pts.push_back(app({ {cp, 0, -sp}, {0, 1, 0}, {sp, 0, cp} }, { r2+r1*ct, r1*st, 0 }));
       nor.push_back({ ct, st, 0 });
@@ -43,13 +41,13 @@ void sphere(double r=20, double dX=0.08, double dY=0.04, double dZ=0.04, vec lig
   draw(pts, nor, dX, dY, dZ, light_dir, iter);
 }
 
-void ch4(double r1=10, double r2=5, double l=30, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}, long long iter=10000) {
+void ch4(double r1=20, double r2=8, double l=50, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}, long long iter=10000) {
   vector<vec> pts, nor;
   double co=cos(20.5*3.1415926/180), si=sin(19.5*3.1415926/180);
   vec dis[4] = { {0, l, 0}, {co*l, -si*l, 0}, {-co*l/2, -si*l, co*l*sqrt(3)/2}, {-co*l/2, -si*l, -co*l*sqrt(3)/2} };
-  for (double the=0; the<6.28; the+=0.05) {
+  for (double the=0; the<6.28; the+=0.02) {
     double ct=cos(the), st=sin(the);
-    for (double phi=0; phi<3.14; phi+=0.05) {
+    for (double phi=0; phi<3.14; phi+=0.02) {
       double cp=cos(phi), sp=sin(phi), x=r2*ct*sp, y=r2*st*sp, z=r2*cp;
       pts.push_back({r1*ct*sp, r1*st*sp, r1*cp});
       nor.push_back({r1*ct*sp, r1*st*sp, r1*cp});
@@ -61,5 +59,8 @@ void ch4(double r1=10, double r2=5, double l=30, double dX=0.08, double dY=0.02,
   }
   for (int i=0; i<pts.size(); ++i) pts[i] = add(pts[i], disp);
   draw(pts, nor, dX, dY, dZ, light_dir, iter);
+}
+
+void cone(double r=20, double h=40, double l=50, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}, long long iter=10000) {
 }
 
