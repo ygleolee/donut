@@ -1,7 +1,7 @@
 void donut(double r1=12, double r2=30, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, -1}, vec disp = {0, 0, 0}, long long iter=10000) {
   vector<vec> pts, nor;
   double cp, sp, ct, st;
-  for (double phi=0; phi<6.28; phi+=0.01) {
+  for (double phi=0; phi<6.28; phi+=0.015) {
     cp=cos(phi), sp=sin(phi);
     for (double the=0; the<6.28; the+=0.04) {
       ct=cos(the), st=sin(the);
