@@ -41,19 +41,21 @@ double cosang(vec x, vec y) {
   return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]) / sqrt((x[0]*x[0] + x[1]*x[1] + x[2]*x[2]) * (y[0]*y[0] + y[1]*y[1] + y[2]*y[2]));
 }
 
-void draw(vector<vec>& pts, vector<vec>& nors, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, 1, -1}, long long iter=10000) {
+void draw(vector<vec>& pts, vector<vec>& nors, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, long long iter=10000) {
   printf("\x1b[2J");
   double r1=9, r2=24, X=0, Y=0, Z=0, cX, cY, cZ, sX, sY, sZ, bri;
-  double usr=0, scr=80, obj=160; // user at z=0, screen at z=80, object at z=160
+  double usr=160, scr=80, obj=0, scale; // user at z=0, screen at z=80, object at z=160
   int wid=160, hei=80; // screen is 80*80, wid 160 for scaling
-  vec pt, nor, cen={static_cast<double>(wid/2), static_cast<double>(hei/2), 50};
+  vec pt, nor, cen={static_cast<double>(wid/2), static_cast<double>(hei/2), 0};
   neg(light_dir);
   mat Rx, Ry, Rz, rot;
   vector<vector<char>> pix(wid, vector<char>(hei));
   mat dep(wid, vector<double>(hei));
-  // vector<string> pix(wid, string(hei, ' '));
-  string s="........,,,,,:>+r=csu3V0Q@";
+  string s=",......,,,,,--:>+r=csu3V0Q@";
+  // string s="...........:>+r=csu3V0Q@";
   // string s="......,,,-~:;=!*#$@";
+  // string s=",,,,,,,,,,,,:>+r=csu3V0Q@";
+  // string s="...........................,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@";
   for (int cnt=0; cnt<iter; ++cnt, X+=dX, Y+=dY, Z+=dZ) {
     cX=cos(X), sX=sin(X), cY=cos(Y), sY=sin(Y), cZ=cos(Z), sZ=sin(Z);
     Rx = { {1, 0, 0}, {0, cX, -sX}, {0, sX, cX} };
@@ -61,21 +63,21 @@ void draw(vector<vec>& pts, vector<vec>& nors, double dX=0.08, double dY=0.02, d
     Rz = { {cZ, -sZ, 0}, {sZ, cZ, 0}, {0, 0, 1} };
     rot = mul(Rx, mul(Ry, Rz));
     for (int i=0; i<wid; ++i) for (int j=0; j<hei; ++j) {
-        dep[i][j]=10000000;
+        dep[i][j]=-1e9;
         pix[i][j]=' ';
     }
     for (int i=0; i<pts.size(); ++i) {
       pt = app(rot, pts[i]);
       pt[0]*=2; // to scale back
-      pt[2] += obj; // assume points centered at origin, move to z=160
-      pt[0]*=((scr-usr)/(pt[2]-usr));
-      pt[1]*=((scr-usr)/(pt[2]-usr));
+      pt[2]+=obj; // assume points centered at origin, move to z=160
+      scale=(usr-scr)/(usr-pt[2]);
+      pt[0]*=scale;
+      pt[1]*=scale;
       pt = add(pt, cen);
-      if (!inrange(pt[0], pt[1]) || pt[2] > dep[(int)pt[0]][(int)pt[1]]) continue;
+      if (!inrange(pt[0], pt[1]) || pt[2] < dep[(int)pt[0]][(int)pt[1]]) continue;
       dep[(int)pt[0]][(int)pt[1]] = pt[2];
       nor = app(rot, nors[i]);
       bri = cosang(light_dir, nor);
-      // cout << bri << endl;
       bri = (bri+1)/2;
       pix[(int)pt[0]][(int)pt[1]] = s[(int)(bri*(s.length()-1))];
     }
