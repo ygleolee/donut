@@ -55,7 +55,7 @@ int getrows() {
   return stoi(res);
 }
 
-void draw(vector<vec>& pts, vector<vec>& nors, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, long long iter=10000) {
+void draw(vector<vec>& pts, vector<vec>& nors, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}) {
   printf("\x1b[2J");
   double r1=9, r2=24, X=0, Y=0, Z=0, cX, cY, cZ, sX, sY, sZ, bri;
   double usr=160, scr=80, obj=0, scale; // user at z=0, screen at z=80, object at z=160
@@ -70,7 +70,7 @@ void draw(vector<vec>& pts, vector<vec>& nors, double dX=0.08, double dY=0.02, d
   // string s="...........:>+r=csu3V0Q@";
   // string s="......,,,-~:;=!*#$@";
   // string s=",,,,,,,,,,,,:>+r=csu3V0Q@";
-  for (int cnt=0; cnt<iter; ++cnt, X+=dX, Y+=dY, Z+=dZ) {
+  for (;;X+=dX, Y+=dY, Z+=dZ) {
     cX=cos(X), sX=sin(X), cY=cos(Y), sY=sin(Y), cZ=cos(Z), sZ=sin(Z);
     Rx = { {1, 0, 0}, {0, cX, -sX}, {0, sX, cX} };
     Ry = { {cY, 0, -sY}, {0, 1, 0}, {sY, 0, cY} };
