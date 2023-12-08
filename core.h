@@ -43,7 +43,7 @@ double cosang(vec x, vec y) {
 
 int getcols() {
   char res[101];
-  unique_ptr<FILE, decltype(&pclose)> pipe(popen("tput col", "r"), pclose);
+  unique_ptr<FILE, decltype(&pclose)> pipe(popen("tput cols", "r"), pclose);
   fgets(res, 100, pipe.get());
   return stoi(res);
 }
