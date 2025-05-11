@@ -37,11 +37,13 @@ void test_draw() {
 }
 
 void test_animate() {
-  dbl r1 = 25, r2 = 60;
+  dbl r1 = 30, r2 = 60;
   std::vector<vec> points, normals;
   tie(points, normals) = donut(r1, r2);
 
-  animate(points, normals, {0.04, 0.08, 0.02}, 1000.0, {0, -1, -1}, PARALLEL);
+  // animate(points, normals, {0.05, 0.1, 0.1}, 1000.0, {0, -1, -1}, PARALLEL);
+  animate(points, normals, {0.05, 0.1, 0.1}, 1000.0, {2, -3, -2}, PARALLEL);
+  // animate(points, normals, {0.08, 0.02, 0.04}, 1000.0, {200, 100, 200}, POINT);
 }
 
 int main() {

@@ -2,8 +2,8 @@
  
 std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2) {
   std::vector<vec> points, normals;
-  dbl delta_phi = 0.015;
-  dbl delta_the = 0.04;
+  dbl delta_phi = 0.02;
+  dbl delta_the = 0.05;
   for (dbl phi=0; phi<6.28; phi+=delta_phi) {
     dbl cp = cos(phi), sp = sin(phi);
     mat rot = {{ {cp, 0, sp}, {0, 1, 0}, {-sp, 0, cp} }};
