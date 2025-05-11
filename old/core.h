@@ -61,7 +61,7 @@ void draw(vector<vec>& pts, vector<vec>& nors, double dX=0.08, double dY=0.02, d
   double usr=160, scr=80, obj=0, scale; // user at z=0, screen at z=80, object at z=160
   // int wid=120, hei=60; // screen is 80*80, wid 160 for scaling
   int wid=getcols(), hei=getrows();
-  cout << wid << ' ' << hei << endl;
+  // cout << wid << ' ' << hei << endl;
   vec pt, nor, cen={wid/2.0, hei/2.0, 0};
   neg(light_dir);
   mat Rx, Ry, Rz, rot;
@@ -74,7 +74,7 @@ void draw(vector<vec>& pts, vector<vec>& nors, double dX=0.08, double dY=0.02, d
   for (;;X+=dX, Y+=dY, Z+=dZ) {
     cX=cos(X), sX=sin(X), cY=cos(Y), sY=sin(Y), cZ=cos(Z), sZ=sin(Z);
     Rx = { {1, 0, 0}, {0, cX, -sX}, {0, sX, cX} };
-    Ry = { {cY, 0, -sY}, {0, 1, 0}, {sY, 0, cY} };
+    Ry = { {cY, 0, sY}, {0, 1, 0}, {-sY, 0, cY} };
     Rz = { {cZ, -sZ, 0}, {sZ, cZ, 0}, {0, 0, 1} };
     rot = mul(Rx, mul(Ry, Rz));
     for (int i=0; i<wid; ++i) for (int j=0; j<hei; ++j) {

@@ -21,12 +21,12 @@
 // borders of the real plane ([-range, range] x [-range, range])
 const dbl RANGE = 100;
 
-// const std::string grayscale = "......,,,-~:;=!*#$@";
-const std::string grayscale = ".......................................................'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+const std::string grayscale = "......,,,-~:;=!*#$@";
+// const std::string grayscale = ".......................................................'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
 
 void draw(std::vector<std::vector<char>>& canvas, std::vector<vec>& points, std::vector<vec>& normals, dbl viewer, vec light, light_type light_src_type);
 
 void rotate(std::vector<vec>& points, std::vector<vec>& normals, vec degrees);
 
-void animate(std::vector<vec> points, std::vector<vec>& normals, dbl viewer, vec light, light_type light_src_type);
+void animate(std::vector<vec> points, std::vector<vec>& normals, std::array<dbl, 3> degrees, dbl viewer, vec light, light_type light_src_type);
 

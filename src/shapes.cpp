@@ -6,7 +6,7 @@ std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2) {
   dbl delta_the = 0.04;
   for (dbl phi=0; phi<6.28; phi+=delta_phi) {
     dbl cp = cos(phi), sp = sin(phi);
-    mat rot = {{ {cp, 0, -sp}, {0, 1, 0}, {sp, 0, cp} }};
+    mat rot = {{ {cp, 0, sp}, {0, 1, 0}, {-sp, 0, cp} }};
     for (dbl the=0; the<6.28; the+=delta_the) {
       dbl ct = cos(the), st = sin(the);
       vec pt = { r2 + r1 * ct, r1 * st, 0 };
@@ -17,7 +17,7 @@ std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2) {
       normals.push_back(nor);
     }
   }
-  return {points, normals};
+  return { points, normals };
 }
 
 // void cube(double len=70, double dX=0.08, double dY=0.04, double dZ=0.04, vec light_dir = {0, -1, -1}, vec disp = {0, 0, 0}) {

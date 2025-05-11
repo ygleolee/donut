@@ -42,7 +42,7 @@ mat get_rotation_matrix(vec& degrees) {
   dbl cos_z = cos(degrees[Z]);
   dbl sin_z = sin(degrees[Z]);
   mat rot_x = {{ { 1, 0, 0 }, { 0, cos_x, -sin_x }, { 0, sin_x, cos_x } }};
-  mat rot_y = {{ { cos_y, 0, -sin_y }, { 0, 1, 0 }, { sin_y, 0, cos_y } }};
+  mat rot_y = {{ { cos_y, 0, sin_y }, { 0, 1, 0 }, { -sin_y, 0, cos_y } }};
   mat rot_z = {{ { cos_z, -sin_z, 0 }, { sin_z, cos_z, 0 }, { 0, 0, 1 } }};
   mat res = matmul(rot_x, rot_y);
   res = matmul(res, rot_z);

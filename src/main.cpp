@@ -1,6 +1,7 @@
 #include "geometry.hpp"
 #include "core.hpp"
 #include "utils.hpp"
+#include "shapes.hpp"
 
 #include <iostream>
 #include <algorithm>
@@ -13,25 +14,7 @@ void test_terminal_size() {
 void test_draw() {
   dbl r1 = 15, r2 = 60;
   std::vector<vec> points, normals;
-  for (dbl phi=0; phi<6.28; phi+=0.015) {
-    dbl cp=cos(phi), sp=sin(phi);
-    mat rot = {{ {cp, 0, -sp}, {0, 1, 0}, {sp, 0, cp} }};
-    for (dbl the=0; the<6.28; the+=0.04) {
-      dbl ct=cos(the), st=sin(the);
-      vec pt = { r2 + r1 * ct, r1 * st, 0 };
-      vec nor = { ct, st, 0 };
-      pt = apply(rot, pt);
-      nor = apply(rot, nor);
-      pt = rotate(pt, 0.8, X_AXIS);
-      nor = rotate(nor, 0.8, X_AXIS);
-      pt = rotate(pt, 0.6, Y_AXIS);
-      nor = rotate(nor, 0.6, Y_AXIS);
-      pt = rotate(pt, 0.2, Z_AXIS);
-      nor = rotate(nor, 0.2, Z_AXIS);
-      points.push_back(pt);
-      normals.push_back(nor);
-    }
-  }
+  tie(points, normals) = donut(r1, r2);
 
   int hei, wid, canvas_size;
   std::tie(hei, wid) = get_terminal_size();
@@ -56,28 +39,13 @@ void test_draw() {
 void test_animate() {
   dbl r1 = 25, r2 = 60;
   std::vector<vec> points, normals;
-  for (dbl phi=0; phi<6.28; phi+=0.015) {
-    dbl cp=cos(phi), sp=sin(phi);
-    mat rot = {{ {cp, 0, -sp}, {0, 1, 0}, {sp, 0, cp} }};
-    for (dbl the=0; the<6.28; the+=0.04) {
-      dbl ct=cos(the), st=sin(the);
-      vec pt = { r2 + r1 * ct, r1 * st, 0 };
-      vec nor = { ct, st, 0 };
-      pt = apply(rot, pt);
-      nor = apply(rot, nor);
-      pt = rotate(pt, 0.8, X_AXIS);
-      nor = rotate(nor, 0.8, X_AXIS);
-      pt = rotate(pt, 0.6, Y_AXIS);
-      nor = rotate(nor, 0.6, Y_AXIS);
-      pt = rotate(pt, 0.2, Z_AXIS);
-      nor = rotate(nor, 0.2, Z_AXIS);
-      points.push_back(pt);
-      normals.push_back(nor);
-    }
-  }
-  animate(points, normals, 1000.0, {0, -1, -1}, PARALLEL);
+  tie(points, normals) = donut(r1, r2);
+
+  animate(points, normals, {0.04, 0.08, 0.02}, 1000.0, {0, -1, -1}, PARALLEL);
 }
 
 int main() {
+  // test_terminal_size();
+  // test_draw();
   test_animate();
 }

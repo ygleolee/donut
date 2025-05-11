@@ -11,8 +11,7 @@ std::pair<int, int> get_terminal_size() {
   return std::make_pair(w.ws_row, w.ws_col);
 }
 
-
-inline bool inrange(int n, int m, int i, int j) {
+bool inrange(int n, int m, int i, int j) {
   return (i < n) && (i >= 0) && (j < m) && (j >= 0);
 }
 
