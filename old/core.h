@@ -5,7 +5,7 @@ using namespace std;
 #define cout if(1) cerr
 #define inrange(x, y) (x>=0&&x<wid&&y>=0&&y<hei)
 
-typedef vector<vector<double>> mat;
+typedef vector<vector<double> > mat;
 typedef vector<double> vec;
 
 mat mul(mat A, mat B) {
@@ -61,14 +61,15 @@ void draw(vector<vec>& pts, vector<vec>& nors, double dX=0.08, double dY=0.02, d
   double usr=160, scr=80, obj=0, scale; // user at z=0, screen at z=80, object at z=160
   // int wid=120, hei=60; // screen is 80*80, wid 160 for scaling
   int wid=getcols(), hei=getrows();
+  cout << wid << ' ' << hei << endl;
   vec pt, nor, cen={wid/2.0, hei/2.0, 0};
   neg(light_dir);
   mat Rx, Ry, Rz, rot;
   vector<vector<char>> pix(wid, vector<char>(hei));
   mat dep(wid, vector<double>(hei));
-  string s=".......,,,,,:>+r=csu3V0Q@";
+  // string s=".......,,,,,:>+r=csu3V0Q@";
   // string s="...........:>+r=csu3V0Q@";
-  // string s="......,,,-~:;=!*#$@";
+  string s="......,,,-~:;=!*#$@";
   // string s=",,,,,,,,,,,,:>+r=csu3V0Q@";
   for (;;X+=dX, Y+=dY, Z+=dZ) {
     cX=cos(X), sX=sin(X), cY=cos(Y), sY=sin(Y), cZ=cos(Z), sZ=sin(Z);
@@ -98,9 +99,9 @@ void draw(vector<vec>& pts, vector<vec>& nors, double dX=0.08, double dY=0.02, d
     printf("\x1b[H");
     for (int i=hei-1; i>=0; --i) {
       for (int j=0; j<wid; ++j) {
-        putchar(pix[j][i]);
+        putchar_unlocked(pix[j][i]);
       }
-      putchar('\n');
+      putchar_unlocked('\n');
     }
     usleep(20000);
   }

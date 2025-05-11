@@ -1,5 +1,7 @@
-#include <bits/stdc++.h>
+// #include <bits/stdc++.h>
+#include <vector>
 #include <unistd.h>
+#include <iostream>
 using namespace std;
 
 #define cout if(0) cerr
@@ -41,7 +43,7 @@ int main() {
   printf("\x1b[2J");
   double r1=9, r2=24, X=0, Y=0, Z=0, dX=0.08, dY=0.02, dZ=0.04, cX, cY, cZ, sX, sY, sZ, the, phi, ct, st, cp, sp, dthe=0.05, dphi=0.05, bri;
   int wid=160, hei=80;
-  vec light_dir = {1, 1, -1}, dis = {static_cast<double>(wid/2), static_cast<double>(hei/2), 50}, org = {0, 0, 0}, pt, nor;
+  vec light_dir = {1, 1, -1}, dis = {static_cast<double>(wid/2.0), static_cast<double>(hei/2.0), 50}, org = {0, 0, 0}, pt, nor;
   mat Rx, Ry, Rz, rot;
   vector<vector<char>> pix(wid, vector<char>(hei));
   mat dep(wid, vector<double>(hei));
