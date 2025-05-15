@@ -1,10 +1,9 @@
 #include "core.hpp"
 #include "utils.hpp"
 
-#include <iostream>
 #include <unistd.h>
 
-void draw(std::vector<std::vector<char>>& canvas, std::vector<vec>& points, std::vector<vec>& normals, dbl viewer, vec light, light_type light_src_type) {
+void draw(std::vector<std::vector<dbl>>& canvas, std::vector<vec>& points, std::vector<vec>& normals, dbl viewer, vec light, light_type light_src_type) {
   int n = points.size();
   int wid = canvas.size();
   int hei = canvas[0].size();
@@ -13,7 +12,7 @@ void draw(std::vector<std::vector<char>>& canvas, std::vector<vec>& points, std:
   // clear canvas
   for (int i=0; i<wid; ++i) {
     for (int j=0; j<hei; ++j) {
-      canvas[i][j] = ' ';
+      canvas[i][j] = -1;
     }
   }
 
@@ -21,28 +20,51 @@ void draw(std::vector<std::vector<char>>& canvas, std::vector<vec>& points, std:
     light = neg(light);
   }
 
-  // int hei, wid;
-  // std::tie(hei, wid) = get_terminal_size();
-  // dbl ratio = ((dbl) hei) / ((dbl) wid);
-  dbl ratio = 1.85; // character height/width (TODO: somehow get this from the terminal)
-
   for (int i=0; i<n; ++i) {
-    dbl scale = viewer / (viewer - points[i][Z]);
-    int x_canvas = (int) round(scale * points[i][X] / RANGE * (wid>>1) / ratio) + (wid>>1); // divide by ratio cuz the ratio of a character is hei/wid = ratio
-    int y_canvas = (int) round(scale * points[i][Y] / RANGE * (hei>>1)) + (hei>>1);
+    vec pt = points[i];
+    dbl scale = viewer / (viewer - pt[Z]);
+    int x_canvas = (int) round(scale * pt[X] / RANGE * (wid>>1) / RATIO) + (wid>>1); // divide by ratio cuz the ratio of a character is hei/wid
+    int y_canvas = (int) round(scale * pt[Y] / RANGE * (hei>>1)) + (hei>>1);
     if (!inrange(wid, hei, x_canvas, y_canvas)) continue;
-    if (depth[x_canvas][y_canvas] > points[i][Z]) continue;
-    depth[x_canvas][y_canvas] = points[i][Z];
+    if (depth[x_canvas][y_canvas] > pt[Z]) continue;
+    depth[x_canvas][y_canvas] = pt[Z];
     vec light_vec = light;
     if (light_src_type == POINT) { // treat 'light' as light source
-      light_vec = diff(light, points[i]);
+      light_vec = diff(light, pt);
     }
     dbl brightness = (cosang(light_vec, normals[i]) + 1) / 2; 
-    canvas[x_canvas][y_canvas] = grayscale[(int) (brightness * (grayscale.size() - 1))];
+    canvas[x_canvas][y_canvas] = brightness;
   }
+
+  // for (int t=0; t<5; ++t) {
+  //   for (int i=0; i<wid; ++i) {
+  //     for (int j=0; j<hei; ++j) {
+  //       if (canvas[i][j] > 0.5) continue;
+  //       bool adjust = true;
+  //       int cnt = 4; // adjust if at least 2 neighbors are (significantly) different
+  //       dbl set = 0;
+  //       for (int k=0; k<4; ++k) {
+  //         int i_ = i + dx[k];
+  //         int j_ = j + dy[k];
+  //         if ((!inrange(wid, hei, i_, j_)) || (canvas[i_][j_] < 0)) {
+  //           adjust = false;
+  //           break;
+  //         }
+  //         if (canvas[i_][j_] < 0.5) {
+  //           --cnt;
+  //         }
+  //         set = fmax(set, canvas[i_][j_]);
+  //       }
+  //       if (adjust && cnt >= 2) {
+  //         canvas[i][j] = set;
+  //         // canvas[i][j] = 1;
+  //       }
+  //     }
+  //   }
+  // }
 }
 
-void rotate(std::vector<vec>& points, std::vector<vec>& normals, vec degrees) {
+void rotate_shape(std::vector<vec>& points, std::vector<vec>& normals, vec degrees) {
   mat rot = get_rotation_matrix(degrees);
   for (auto& pt : points) {
     pt = apply(rot, pt);
@@ -52,29 +74,29 @@ void rotate(std::vector<vec>& points, std::vector<vec>& normals, vec degrees) {
   }
 }
 
-void animate(std::vector<vec> points, std::vector<vec>& normals, std::array<dbl, 3> degrees, dbl viewer, vec light, light_type light_src_type) {
+void animate_simple(std::vector<vec> points, std::vector<vec>& normals, std::array<dbl, 3> degrees, dbl viewer, vec light, light_type light_src_type, dbl interval) {
   int hei, wid;
   std::tie(hei, wid) = get_terminal_size();
+  std::vector<std::vector<dbl>> canvas(wid, std::vector<dbl>(hei));
 
-  std::vector<std::vector<char>> canvas(wid, std::vector<char>(hei));
-  int pad_size_l = (wid - hei) >> 1;
-  int pad_size_r = wid - pad_size_l - hei;
-  std::string pad_l(pad_size_l, ' ');
-  std::string pad_r(pad_size_r, ' ');
-
+  int n = grayscale.size();
   while (true) {
     printf("\x1b[H");
     draw(canvas, points, normals, viewer, light, light_src_type);
     for (int i=0; i<hei; ++i) {
-      // std::cout << pad_l;
       for (int j=0; j<wid; ++j) {
-        putchar_unlocked(canvas[j][hei - 1 -i]);
+        dbl brightness = canvas[j][hei - 1 - i];
+        if (brightness < 0) {
+          putchar_unlocked(' ');
+        }
+        else {
+          putchar_unlocked(grayscale[(int) (brightness * (n - 1))]);
+        }
       }
-      // std::cout << pad_r << '\n';
       putchar_unlocked('\n');
     }
-    rotate(points, normals, degrees);
-    usleep(50000);
+    rotate_shape(points, normals, degrees);
+    usleep(interval);
   }
 }
 
