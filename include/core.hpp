@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils.hpp"
 #include "geometry.hpp"
 
 #include <vector>
@@ -26,8 +27,6 @@ const dbl RATIO = 1.75;
 const std::string grayscale = "......,,,-~:;=!*#$@";
 // const std::string grayscale = ".......................................................'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
 
-const std::array<int, 4> dx = { 0, 0, 1, -1 };
-const std::array<int, 4> dy = { 1, -1, 0, 0 };
 
 void rotate_shape(std::vector<vec>& points, std::vector<vec>& normals, vec degrees);
 
@@ -40,6 +39,7 @@ void draw(
   light_type light_src_type                // PARALLEL or POINT
 );
 
+// fixed camera, light, viewer, rotation speed
 void animate_simple(
   std::vector<vec> points,    // points in R^3 of the shape
   std::vector<vec>& normals,  // normal vectors of each corresponding point
@@ -50,3 +50,15 @@ void animate_simple(
   dbl interval                // interval between each frame
 );
 
+// global variables defined in interactive.cpp for users to control
+extern dbl viewer;
+extern vec rotation;
+extern light_type light_src_type;
+extern vec light_parallel;
+extern vec light_point;
+extern dbl fps;
+
+void animate(
+  std::vector<vec> points,    // points in R^3 of the shape
+  std::vector<vec>& normals   // normal vectors of each corresponding point
+);

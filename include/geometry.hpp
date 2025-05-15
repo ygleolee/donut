@@ -1,8 +1,10 @@
 #pragma once
 
+#include "utils.hpp"
+
 #include <array>
 
-using dbl = double;
+
 using vec = std::array<dbl, 3>;
 using mat = std::array<std::array<dbl, 3>, 3>;
 

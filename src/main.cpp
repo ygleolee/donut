@@ -35,7 +35,8 @@ int main() {
   //   animation related:
   //     rotation
   //     viewer
-  //     light src_type/location
+  //     light src_type (toggle)
+  //     light direction / location (depending on type)
   //   others (might need to change to not const):
   //     CACHE_SIZE
   //     grayscale

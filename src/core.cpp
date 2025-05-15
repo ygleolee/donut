@@ -83,9 +83,12 @@ void animate_simple(std::vector<vec> points, std::vector<vec>& normals, std::arr
   while (true) {
     printf("\x1b[H");
     draw(canvas, points, normals, viewer, light, light_src_type);
-    for (int i=0; i<hei; ++i) {
-      for (int j=0; j<wid; ++j) {
-        dbl brightness = canvas[j][hei - 1 - i];
+    // for (int i=0; i<hei; ++i) {
+    //   for (int j=0; j<wid; ++j) {
+    for (int j=hei-1; j>=0; --j) {
+      for (int i=0; i<wid; ++i) {
+        // dbl brightness = canvas[j][hei - 1 - i];
+        dbl brightness = canvas[i][j];
         if (brightness < 0) {
           putchar_unlocked(' ');
         }
@@ -98,5 +101,12 @@ void animate_simple(std::vector<vec> points, std::vector<vec>& normals, std::arr
     rotate_shape(points, normals, degrees);
     usleep(interval);
   }
+}
+
+void animate(std::vector<vec> points, std::vector<vec>& normals) {
+  // create producer and consumer threads and handle them
+  // producer should keep cache (queue) at size CACHE
+  // consumer should handle the FPS part and call output_to_screen()
+  viewer += 1;
 }
 

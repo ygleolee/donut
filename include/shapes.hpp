@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils.hpp"
 #include "geometry.hpp"
 
 #include <vector>
