@@ -16,12 +16,12 @@ enum light_type {
   PARALLEL, POINT
 };
 
-const vec zero = { 0, 0, 0 };
-const mat Zero = { zero, zero, zero };
-const mat Iden = {{ {1, 0, 0}, {0, 1, 0}, {0, 0, 1} }};
-const int X = 0;
-const int Y = 1;
-const int Z = 2;
+constexpr vec zero = { 0, 0, 0 };
+constexpr mat Zero = { zero, zero, zero };
+constexpr mat Iden = {{ {1, 0, 0}, {0, 1, 0}, {0, 0, 1} }};
+constexpr int X = 0;
+constexpr int Y = 1;
+constexpr int Z = 2;
 
 
 mat matmul(mat& A, mat& B);

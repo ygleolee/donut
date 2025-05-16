@@ -3,6 +3,7 @@ build/
 out/
 cmake-build-*/
 .cache
+.clangd
 
 # CMake generated files
 CMakeCache.txt

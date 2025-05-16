@@ -10,19 +10,28 @@ void test_terminal_size() {
   std::cout << ts.first << ' ' << ts.second << std::endl;
 }
 
-void test_animate() {
+void test_animate_simple() {
   dbl r1 = 30, r2 = 60;
   std::vector<vec> points, normals;
   tie(points, normals) = donut(r1, r2);
 
   animate_simple(points, normals, {0.05, 0.1, 0.1}, 1000.0, {-1, -1, -1}, PARALLEL, 50000);
-  // animate(points, normals, {0.05, 0.1, 0.1}, 1000.0, {2, -3, -2}, PARALLEL);
-  // animate(points, normals, {0.08, 0.02, 0.04}, 1000.0, {200, 100, 200}, POINT);
+  // animate_simple(points, normals, {0.05, 0.1, 0.1}, 1000.0, {2, -3, -2}, PARALLEL);
+  // animate_simple(points, normals, {0.08, 0.02, 0.04}, 1000.0, {200, 100, 200}, POINT);
+}
+
+void test_animate() {
+  dbl r1 = 30, r2 = 60;
+  std::vector<vec> points, normals;
+  tie(points, normals) = donut(r1, r2);
+
+  animate(points, normals);
 }
 
 int main() {
   // test_terminal_size();
   // test_draw();
+  // test_animate_simple();
   test_animate();
 
 

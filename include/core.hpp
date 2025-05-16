@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.hpp"
+#include "io.hpp"
 #include "geometry.hpp"
 
 #include <vector>
@@ -19,14 +20,16 @@
 // TODO: light blocked by other parts of the object ?!
 
 // borders of the real plane ([-range, range] x [-range, range])
-const dbl RANGE = 100;
+constexpr dbl RANGE = 100;
 
 // character height/width (TODO: somehow get this from the terminal)
-const dbl RATIO = 1.75;
+constexpr dbl RATIO = 1.75;
 
-const std::string grayscale = "......,,,-~:;=!*#$@";
-// const std::string grayscale = ".......................................................'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+constexpr std::string grayscale = "......,,,-~:;=!*#$@";
+// constexpr std::string grayscale = ".......................................................'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
 
+// if a pixel differs by THRESHOLD with its neighbors, change it
+constexpr dbl THRESHOLD = 0.2;
 
 void rotate_shape(std::vector<vec>& points, std::vector<vec>& normals, vec degrees);
 
@@ -49,6 +52,10 @@ void animate_simple(
   light_type light_src_type,  // PARALLEL or POINT
   dbl interval                // interval between each frame
 );
+
+
+// buffer between compute thread and output thread, defined in io.cpp
+extern std::array<std::vector<std::vector<dbl>>, MAX_BUFFER_SIZE> buffer;
 
 // global variables defined in interactive.cpp for users to control
 extern dbl viewer;
