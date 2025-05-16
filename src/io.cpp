@@ -6,7 +6,6 @@
 #include <thread>
 #include <condition_variable>
 #include <chrono>
-#include <iostream>
 
 std::mutex mtx;
 std::condition_variable cv_compute;
@@ -27,8 +26,8 @@ void update_screen(std::vector<std::vector<dbl>>& canvas, std::vector<std::vecto
 
   for (int j=hei-1; j>=0; --j) {
     for (int i=0; i<wid; ++i) {
-      char cur = grayscale[(int) (    canvas[i][j] * (n - 1))];
-      char old = grayscale[(int) (old_canvas[i][j] * (n - 1))];
+      char cur =     canvas[i][j] < 0 ? ' ' : grayscale[(int) (    canvas[i][j] * (n - 1))];
+      char old = old_canvas[i][j] < 0 ? ' ' : grayscale[(int) (old_canvas[i][j] * (n - 1))];
       if (cur != old) {
         output += move_cursor(hei - j, i + 1) + cur;
         old_canvas[i][j] = cur;
@@ -60,6 +59,8 @@ void _compute_thread(std::vector<vec>& points, std::vector<vec>& normals) {
       buffer[id] = canvas;
       buffer_cnt += 1;
     }
+
+    cv_output.notify_one();
   }
 }
 
@@ -72,7 +73,7 @@ void _output_thread() {
   for (int id = 0; ; id = (id + 1) % MAX_BUFFER_SIZE) {
     {
       std::unique_lock<std::mutex> lock(mtx);
-      cv_compute.wait(lock, [] {
+      cv_output.wait(lock, [] {
         return buffer_cnt > 0;
       });
     }
@@ -82,6 +83,8 @@ void _output_thread() {
       canvas = buffer[id];
       buffer_cnt -= 1;
     }
+
+    cv_compute.notify_one();
 
     update_screen(canvas, old_canvas);
     std::this_thread::sleep_for(std::chrono::milliseconds((int) (1000 / fps)));

@@ -38,29 +38,33 @@ void draw(std::vector<std::vector<dbl>>& canvas, std::vector<vec>& points, std::
     canvas[x_canvas][y_canvas] = brightness;
   }
 
-  for (int t=0; t<3; ++t) {
-    for (int i=1; i<wid-1; ++i) { // only do [1, wid-1) to avoid out of bounds checks
-      for (int j=1; j<hei-1; ++j) {
-        int cnt = 0; // adjust if at least 2 neighbors are (significantly) different
-        int neg = 0; // if more than 1 neighbors have negative depth, dont adjust (need shape to be convex?)
-        dbl set = 0;
-        for (int k=0; k<4; ++k) {
-          int i_ = i + dx[k];
-          int j_ = j + dy[k];
-          if (canvas[i_][j_] < 0) { // dont adjust edges of the shape
-            ++neg;
-          }
-          else if (canvas[i_][j_] - canvas[i][j] > THRESHOLD) {
-            set += canvas[i_][j_];
-            ++cnt;
-          }
-        }
-        if (neg <= 1 && cnt >= 2) {
-          canvas[i][j] = set / cnt;
-        }
-      }
-    }
-  }
+  // TODO: some angles cause a pixel that should be empty to have 3 non-empty neighbors, so the criteria doesn't work
+  //       ideally, want the criteria to be neg <= 1 (cuz might be adjacent missed pixels)
+  //       but even <= 0 cause issues somehow (when the middle hole becomes a cresent like shape)
+
+  // for (int t=0; t<3; ++t) {
+  //   for (int i=1; i<wid-1; ++i) { // only do [1, wid-1) to avoid out of bounds checks
+  //     for (int j=1; j<hei-1; ++j) {
+  //       int cnt = 0; // adjust if at least 2 neighbors are (significantly) different
+  //       int neg = 0; // if more than 1 neighbors have negative depth, dont adjust (need shape to be convex?)
+  //       dbl set = 0;
+  //       for (int k=0; k<4; ++k) {
+  //         int i_ = i + dx[k];
+  //         int j_ = j + dy[k];
+  //         if (canvas[i_][j_] < 0) { // dont adjust edges of the shape
+  //           ++neg;
+  //         }
+  //         else if (canvas[i_][j_] - canvas[i][j] > THRESHOLD) {
+  //           set += canvas[i_][j_];
+  //           ++cnt;
+  //         }
+  //       }
+  //       if (neg <= 0 && cnt >= 2) {
+  //         canvas[i][j] = set / cnt;
+  //       }
+  //     }
+  //   }
+  // }
 }
 
 void rotate_shape(std::vector<vec>& points, std::vector<vec>& normals, vec degrees) {
@@ -97,14 +101,17 @@ void animate_simple(std::vector<vec> points, std::vector<vec>& normals, std::arr
 
 // TODO: terminate animation after a certain amount of time?
 void animate(std::vector<vec> points, std::vector<vec>& normals) {
+  printf("\x1b[2J\x1b[H"); // clear screen
+  printf("\x1b[?25l");     // hide cursor
+
   int hei, wid;
   std::tie(hei, wid) = get_terminal_size();
 
   for (auto& canvas : buffer) {
-      canvas.resize(wid);
-      for (auto& row : canvas) {
-          row.resize(hei);
-      }
+    canvas.resize(wid);
+    for (auto& row : canvas) {
+      row.resize(hei);
+    }
   }
 
   std::thread compute_thread(_compute_thread, std::ref(points), std::ref(normals));
@@ -112,5 +119,7 @@ void animate(std::vector<vec> points, std::vector<vec>& normals) {
 
   compute_thread.join();
   output_thread.join();
+
+  // TODO: put cursor back after animation terminates
 }
 

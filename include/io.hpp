@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-constexpr int MAX_BUFFER_SIZE = 5;
+constexpr int MAX_BUFFER_SIZE = 10;
 
 // global variables defined in interactive.cpp for users to control
 extern dbl viewer;
