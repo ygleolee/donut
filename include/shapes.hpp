@@ -14,6 +14,9 @@ std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2);
 // r1 = donut radius, r2 = sphere radius, n = # of spheres
 std::pair<std::vector<vec>, std::vector<vec>> mister_donut(dbl r1, dbl r2, int n);
 
+// r = radius, if ax==X, circle will be on YZ-plane
+std::pair<std::vector<vec>, std::vector<vec>> circle(dbl r, axis ax);
+
 // width, height, length
 std::pair<std::vector<vec>, std::vector<vec>> cuboid(dbl w, dbl h, dbl l);
 

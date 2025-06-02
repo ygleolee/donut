@@ -34,7 +34,7 @@ vec rotate(vec& v, dbl ang, axis ax) {
   return apply(rot, v);
 }
 
-mat get_rotation_matrix(vec& degrees) {
+mat get_rotation_matrix(vec degrees) {
   dbl cos_x = cos(degrees[X]);
   dbl sin_x = sin(degrees[X]);
   dbl cos_y = cos(degrees[Y]);

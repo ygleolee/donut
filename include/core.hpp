@@ -23,10 +23,11 @@
 constexpr dbl RANGE = 100;
 
 // character height/width (TODO: somehow get this from the terminal)
+// TODO: this is not accurate now
 constexpr dbl RATIO = 1.75;
 
-constexpr std::string grayscale = "......,,,-~:;=!*#$@";
-// constexpr std::string grayscale = ".......................................................'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+const std::string grayscale = "......,,,-~:;=!*#$@";
+// const std::string grayscale = ".......................................................'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
 
 // if a pixel differs by THRESHOLD with its neighbors, change it
 constexpr dbl THRESHOLD = 0.2;

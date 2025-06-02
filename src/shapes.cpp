@@ -1,14 +1,14 @@
 #include "shapes.hpp"
+#include "core.hpp"
 
 #include <numbers>
  
 std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2) {
   std::vector<vec> points, normals;
-  dbl delta_phi = 0.02;
-  dbl delta_the = 0.05;
+  dbl delta_phi = 0.01;
+  dbl delta_the = 0.02;
   for (dbl phi=0; phi<6.28; phi+=delta_phi) {
-    vec degrees = {0, phi, 0};
-    mat rot = get_rotation_matrix(degrees);
+    mat rot = get_rotation_matrix({0, phi, 0});
     for (dbl the=0; the<6.28; the+=delta_the) {
       dbl ct = cos(the), st = sin(the);
       vec pt = { r1 + r2 * ct, r2 * st, 0 };
@@ -31,8 +31,7 @@ std::pair<std::vector<vec>, std::vector<vec>> mister_donut(dbl r1, dbl r2, int n
   }
 
   for (int i=0; i<n; ++i) {
-    vec degrees = { 0, 0, ang * i };
-    mat rot = get_rotation_matrix(degrees);
+    mat rot = get_rotation_matrix({0, 0, ang * i});
     for (auto& pt:points_sphere) {
       points.push_back(apply(rot, pt));
     }
@@ -40,6 +39,22 @@ std::pair<std::vector<vec>, std::vector<vec>> mister_donut(dbl r1, dbl r2, int n
       normals.push_back(apply(rot, nor));
     }
   }
+  return { points, normals };
+}
+
+std::pair<std::vector<vec>, std::vector<vec>> circle(dbl r, axis ax) {
+  std::vector<vec> points, normals;
+  dbl delta_phi = 0.02;
+  for (dbl phi=0; phi<2*std::numbers::pi; phi+=delta_phi) {
+    dbl co = cos(phi);
+    dbl si = sin(phi);
+    points.push_back({r*co, r*si, 0});
+    normals.push_back({co, si, 0});
+  }
+  vec degrees = {0, 0, 0};
+  if (ax == X_AXIS) degrees[X] = std::numbers::pi / 2;
+  else if (ax == Y_AXIS) degrees[Y] = std::numbers::pi / 2;
+  rotate_shape(points, normals, degrees);
   return { points, normals };
 }
 
@@ -82,46 +97,69 @@ std::pair<std::vector<vec>, std::vector<vec>> ellipsoid(dbl a, dbl b, dbl c) {
   return { points, normals };
 }
 
-// std::pair<std::vector<vec>, std::vector<vec>> methane(dbl r1, dbl r2, dbl r3, dbl l) {
-//   std::vector<vec> points, normals;
-//   dbl ang = 109.5 / 180 * std::numbers::pi; // methane bond angle
-//   dbl co = cos(ang), si = sin(ang), ct, st, cp, sp, x, y, z;
-//   mat rot1 = {{ {co, -si, 0}, {si, co, 0}, {0, 0, 1} }}, rot2 = {{ {(-1.0)/2, 0, -sqrt(3)/2}, {0, 1, 0}, {sqrt(3)/2, 0, (-1.0)/2} }};
-//   vec v={0, l, 0}, v1=apply(rot1, v), v2=apply(rot2, v1), v3=apply(rot2, v2), n, n1, n2, n3;
-//   vec dis[4] = {v, v1, v2, v3};
-//   for (dbl the=0; the<6.28; the+=0.02) {
-//     ct=cos(the), st=sin(the);
-//     for (dbl phi=0; phi<3.14; phi+=0.02) {
-//       cp=cos(phi), sp=sin(phi), x=r2*ct*sp, y=r2*st*sp, z=r2*cp;
-//       points.push_back({r1*ct*sp, r1*st*sp, r1*cp});
-//       normals.push_back({r1*ct*sp, r1*st*sp, r1*cp});
-//       for (int i=0; i<4; ++i) {
-//         points.push_back({x+dis[i][0], y+dis[i][1], z+dis[i][2]});
-//         normals.push_back({x, y, z});
-//       }
-//     }
-//   }
-//   for (dbl the=0; the<6.28; the+=0.02) {
-//     co=cos(the), si=sin(the);
-//     for (dbl h=r1; h<=l-r2; h+=0.3) {
-//       v = {r3*co, h, r3*si};
-//       n = {r3*co, 0, r3*si};
-//       v1 = apply(rot1, v);
-//       n1 = apply(rot1, n);
-//       v2 = apply(rot2, v1);
-//       n2 = apply(rot2, n1);
-//       v3 = apply(rot2, v2);
-//       n3 = apply(rot2, n2);
-//       points.push_back(v);
-//       points.push_back(v1);
-//       points.push_back(v2);
-//       points.push_back(v3);
-//       normals.push_back(n);
-//       normals.push_back(n1);
-//       normals.push_back(n2);
-//       normals.push_back(n3);
-//     }
-//   }
-//   return { points, normals };
-// }
+std::pair<std::vector<vec>, std::vector<vec>> methane(dbl r1, dbl r2, dbl r3, dbl l) {
+  std::vector<vec> points, normals;
+  dbl ang = 109.5 / 180 * std::numbers::pi; // methane bond angle
+  mat rot1 = get_rotation_matrix({0, 0, ang}); // rotate about the z-axis by ang
+  mat rot2 = get_rotation_matrix({0, 2 * std::numbers::pi / 3, 0}); // rotate about the y-axis by 120 degrees
+
+  // carbon atom (at (0, 0, 0) so no shift)
+  tie(points, normals) = ellipsoid(r1, r1, r1);
+
+  // hydrogen atoms
+  std::array<vec, 4> hydrogens;
+  hydrogens[0] = {0, l, 0}; // 1st hydrogen atom at {0, l, 0}
+  hydrogens[1] = apply(rot1, hydrogens[0]); // 2nd hydrogen atom is h1 rotated by ang about the z-axis
+  hydrogens[2] = apply(rot2, hydrogens[1]); // 3rd hydrogen atom is h2 rotated by 120 about the y-axis
+  hydrogens[3] = apply(rot2, hydrogens[2]); // 4th hydrogen atom is h3 rotated by 120 about the y-axis
+
+  std::vector<vec> points_hydrogen, normals_hydrogen;
+  std::tie(points_hydrogen, normals_hydrogen) = ellipsoid(r2, r2, r2);
+
+  for (int i=0; i<4; ++i) {
+    for (auto& pt:points_hydrogen) {
+      points.push_back(add(pt, hydrogens[i]));
+    }
+    for (auto& nor:normals_hydrogen) {
+      normals.push_back(nor);
+    }
+  }
+
+  // bonds
+  std::vector<vec> points_circle, normals_circle;
+  std::vector<vec> points_bond, normals_bond;
+  std::tie(points_circle, normals_circle) = circle(r3, Y_AXIS);
+  dbl delta_h = 0.5;
+  for (dbl h=0; h<l; h+=delta_h) {
+    vec shift = {0, h, 0};
+    for (auto& pt:points_circle) {
+      points_bond.push_back(add(pt, shift));
+    }
+    for (auto& nor:normals_circle) {
+      normals_bond.push_back(nor);
+    }
+  }
+  for (auto& pt:points_bond) {
+    vec p1 = pt;
+    vec p2 = apply(rot1, p1);
+    vec p3 = apply(rot2, p2);
+    vec p4 = apply(rot2, p3);
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
+  }
+  for (auto& nor:normals_bond) {
+    vec n1 = nor;
+    vec n2 = apply(rot1, n1);
+    vec n3 = apply(rot2, n2);
+    vec n4 = apply(rot2, n3);
+    points.push_back(n1);
+    points.push_back(n2);
+    points.push_back(n3);
+    points.push_back(n4);
+  }
+
+  return { points, normals };
+}
 
