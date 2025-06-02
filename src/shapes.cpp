@@ -1,160 +1,127 @@
 #include "shapes.hpp"
+
+#include <numbers>
  
 std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2) {
   std::vector<vec> points, normals;
   dbl delta_phi = 0.02;
   dbl delta_the = 0.05;
   for (dbl phi=0; phi<6.28; phi+=delta_phi) {
-    dbl cp = cos(phi), sp = sin(phi);
-    mat rot = {{ {cp, 0, sp}, {0, 1, 0}, {-sp, 0, cp} }};
+    vec degrees = {0, phi, 0};
+    mat rot = get_rotation_matrix(degrees);
     for (dbl the=0; the<6.28; the+=delta_the) {
       dbl ct = cos(the), st = sin(the);
-      vec pt = { r2 + r1 * ct, r1 * st, 0 };
+      vec pt = { r1 + r2 * ct, r2 * st, 0 };
       vec nor = { ct, st, 0 };
-      pt = apply(rot, pt);
-      nor = apply(rot, nor);
-      points.push_back(pt);
-      normals.push_back(nor);
+      points.push_back(apply(rot, pt));
+      normals.push_back(apply(rot, nor));
     }
   }
   return { points, normals };
 }
 
-// std::pair<std::vector<vec>, std::vector<vec>> mister_donut(dbl r1, dbl r2, int n) {
+std::pair<std::vector<vec>, std::vector<vec>> mister_donut(dbl r1, dbl r2, int n) {
+  std::vector<vec> points, normals;
+  dbl ang = 2 * std::numbers::pi / n;
+
+  std::vector<vec> points_sphere, normals_sphere;
+  std::tie(points_sphere, normals_sphere) = ellipsoid(r2, r2, r2);
+  for (auto& pt:points_sphere) { // shift everything by {r1, 0, 0}
+    pt[X] += r1;
+  }
+
+  for (int i=0; i<n; ++i) {
+    vec degrees = { 0, 0, ang * i };
+    mat rot = get_rotation_matrix(degrees);
+    for (auto& pt:points_sphere) {
+      points.push_back(apply(rot, pt));
+    }
+    for (auto& nor:normals_sphere) {
+      normals.push_back(apply(rot, nor));
+    }
+  }
+  return { points, normals };
+}
+
+std::pair<std::vector<vec>, std::vector<vec>> cuboid(dbl w, dbl h, dbl l) {
+  std::vector<vec> points, normals;
+  dbl inc = 0.5;
+  for (dbl i=-w/2; i<=w/2; i+=inc) {
+    for (dbl j=-h/2; j<=h/2; j+=inc) {
+      points.push_back({i, j,  l/2}); normals.push_back({0, 0,  1});
+      points.push_back({i, j, -l/2}); normals.push_back({0, 0, -1});
+    }
+  }
+  for (dbl i=-h/2; i<=h/2; i+=inc) {
+    for (dbl j=-l/2; j<=l/2; j+=inc) {
+      points.push_back({ w/2, i, j}); normals.push_back({ 1, 0, 0});
+      points.push_back({-w/2, i, j}); normals.push_back({-1, 0, 0});
+    }
+  }
+  for (dbl i=-w/2; i<=w/2; i+=inc) {
+    for (dbl j=-l/2; j<=l/2; j+=inc) {
+      points.push_back({i,  h/2, j}); normals.push_back({0,  1, 0});
+      points.push_back({i, -h/2, j}); normals.push_back({0, -1, 0});
+    }
+  }
+  return { points, normals };
+}
+
+std::pair<std::vector<vec>, std::vector<vec>> ellipsoid(dbl a, dbl b, dbl c) {
+  std::vector<vec> points, normals;
+  dbl delta_the = 0.02;
+  dbl delta_phi = 0.02;
+  for (dbl the=0; the<2*std::numbers::pi; the+=delta_the) {
+    dbl ct = cos(the), st = sin(the);
+    for (dbl phi=0; phi<std::numbers::pi; phi+=delta_phi) {
+      dbl cp = cos(phi), sp = sin(phi);
+      points.push_back({ct*sp*a, st*sp*b, cp*c});  // standard ellipsoid parameterization
+      normals.push_back({ct*sp/a, st*sp/b, cp/c}); // take gradient of the ellipsoid formula
+    }
+  }
+  return { points, normals };
+}
+
+// std::pair<std::vector<vec>, std::vector<vec>> methane(dbl r1, dbl r2, dbl r3, dbl l) {
 //   std::vector<vec> points, normals;
-//   dbl delta_phi = 0.01;
-//   dbl delta_the = 0.03;
-//   for (dbl phi=0; phi<6.28; phi+=delta_phi) {
-//     dbl cp = cos(phi), sp = sin(phi);
-//     mat rot = {{ {cp, 0, sp}, {0, 1, 0}, {-sp, 0, cp} }};
-//     for (dbl the=0; the<6.28; the+=delta_the) {
-//       dbl ct = cos(the), st = sin(the);
-//       vec pt = { r2 + r1 * ct, r1 * st, 0 };
-//       vec nor = { ct, st, 0 };
-//       pt = apply(rot, pt);
-//       nor = apply(rot, nor);
-//       points.push_back(pt);
-//       normals.push_back(nor);
+//   dbl ang = 109.5 / 180 * std::numbers::pi; // methane bond angle
+//   dbl co = cos(ang), si = sin(ang), ct, st, cp, sp, x, y, z;
+//   mat rot1 = {{ {co, -si, 0}, {si, co, 0}, {0, 0, 1} }}, rot2 = {{ {(-1.0)/2, 0, -sqrt(3)/2}, {0, 1, 0}, {sqrt(3)/2, 0, (-1.0)/2} }};
+//   vec v={0, l, 0}, v1=apply(rot1, v), v2=apply(rot2, v1), v3=apply(rot2, v2), n, n1, n2, n3;
+//   vec dis[4] = {v, v1, v2, v3};
+//   for (dbl the=0; the<6.28; the+=0.02) {
+//     ct=cos(the), st=sin(the);
+//     for (dbl phi=0; phi<3.14; phi+=0.02) {
+//       cp=cos(phi), sp=sin(phi), x=r2*ct*sp, y=r2*st*sp, z=r2*cp;
+//       points.push_back({r1*ct*sp, r1*st*sp, r1*cp});
+//       normals.push_back({r1*ct*sp, r1*st*sp, r1*cp});
+//       for (int i=0; i<4; ++i) {
+//         points.push_back({x+dis[i][0], y+dis[i][1], z+dis[i][2]});
+//         normals.push_back({x, y, z});
+//       }
+//     }
+//   }
+//   for (dbl the=0; the<6.28; the+=0.02) {
+//     co=cos(the), si=sin(the);
+//     for (dbl h=r1; h<=l-r2; h+=0.3) {
+//       v = {r3*co, h, r3*si};
+//       n = {r3*co, 0, r3*si};
+//       v1 = apply(rot1, v);
+//       n1 = apply(rot1, n);
+//       v2 = apply(rot2, v1);
+//       n2 = apply(rot2, n1);
+//       v3 = apply(rot2, v2);
+//       n3 = apply(rot2, n2);
+//       points.push_back(v);
+//       points.push_back(v1);
+//       points.push_back(v2);
+//       points.push_back(v3);
+//       normals.push_back(n);
+//       normals.push_back(n1);
+//       normals.push_back(n2);
+//       normals.push_back(n3);
 //     }
 //   }
 //   return { points, normals };
 // }
 
-// void cube(double len=70, double dX=0.08, double dY=0.04, double dZ=0.04, vec light_dir = {0, -1, -1}, vec disp = {0, 0, 0}) {
-//   vector<vec> pts, nor;
-//   for (double i=-len/2; i<=len/2; i+=0.5) {
-//     for (double j=-len/2; j<=len/2; j+=0.5) {
-//       pts.push_back({ len/2, i, j}); nor.push_back({ 1, 0, 0});
-//       pts.push_back({-len/2, i, j}); nor.push_back({-1, 0, 0});
-//       pts.push_back({i,  len/2, j}); nor.push_back({0,  1, 0});
-//       pts.push_back({i, -len/2, j}); nor.push_back({0, -1, 0});
-//       pts.push_back({i, j,  len/2}); nor.push_back({0, 0,  1});
-//       pts.push_back({i, j, -len/2}); nor.push_back({0, 0, -1});
-//     }
-//   }
-//   draw(pts, nor, dX, dY, dZ, light_dir);
-// }
-//
-// void cuboid(double a=60, double b=45, double c=30, double dX=0.05, double dY=0.02, double dZ=0.03, vec light_dir = {0, -1, -1}, vec disp = {0, 0, 0}) {
-//   vector<vec> pts, nor;
-//   double inc=0.5;
-//   for (double i=-a/2; i<=a/2; i+=inc) {
-//     for (double j=-b/2; j<=b/2; j+=inc) {
-//       pts.push_back({i, j,  c/2}); nor.push_back({0, 0,  1});
-//       pts.push_back({i, j, -c/2}); nor.push_back({0, 0, -1});
-//     }
-//   }
-//   for (double i=-b/2; i<=b/2; i+=inc) {
-//     for (double j=-c/2; j<=c/2; j+=inc) {
-//       pts.push_back({ a/2, i, j}); nor.push_back({ 1, 0, 0});
-//       pts.push_back({-a/2, i, j}); nor.push_back({-1, 0, 0});
-//     }
-//   }
-//   for (double i=-a/2; i<=a/2; i+=inc) {
-//     for (double j=-c/2; j<=c/2; j+=inc) {
-//       pts.push_back({i,  b/2, j}); nor.push_back({0,  1, 0});
-//       pts.push_back({i, -b/2, j}); nor.push_back({0, -1, 0});
-//     }
-//   }
-//   draw(pts, nor, dX, dY, dZ, light_dir);
-// }
-//
-// void sphere(double r=20, double dX=0.08, double dY=0.04, double dZ=0.04, vec light_dir = {0, -1, -1}, vec disp = {15, 15, 0}) {
-//   vector<vec> pts, nor;
-//   for (double the=0; the<6.28; the+=0.05) {
-//     double ct=cos(the), st=sin(the);
-//     for (double phi=0; phi<3.14; phi+=0.05) {
-//       double cp=cos(phi), sp=sin(phi);
-//       pts.push_back({r*ct*sp, r*st*sp, r*cp});
-//       nor.push_back({r*ct*sp, r*st*sp, r*cp});
-//     }
-//   }
-//   for (int i=0; i<pts.size(); ++i) pts[i] = add(pts[i], disp);
-//   draw(pts, nor, dX, dY, dZ, light_dir);
-// }
-//
-// void ellipsoid(double a=25, double b=32, double c=30, double l=50, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, -1}, vec disp = {0, 0, 0}) {
-//   vector<vec> pts, nor;
-//   for (double the=0; the<6.28; the+=0.02) {
-//     double ct=cos(the), st=sin(the);
-//     for (double phi=0; phi<3.14; phi+=0.02) {
-//       double cp=cos(phi), sp=sin(phi);
-//       pts.push_back({ct*sp*a, st*sp*b, cp*c});
-//       nor.push_back({ct*sp/a, st*sp/b, cp/c});
-//     }
-//   }
-//   for (int i=0; i<pts.size(); ++i) pts[i] = add(pts[i], disp);
-//   draw(pts, nor, dX, dY, dZ, light_dir);
-// }
-//
-// void ch4(double r1=16, double r2=7, double r3=1.2, double l=45, double dX=0.08, double dY=0.03, double dZ=0.05, vec light_dir = {0, -1, -1}, vec disp = {1, 0, 0}) {
-//   vector<vec> pts, nor;
-//   double co=cos(109.5*3.1415926/180), si=sin(109.5*3.14151926/180), ct, st, cp, sp, x, y, z;
-//   mat rot1 = { {co, -si, 0}, {si, co, 0}, {0, 0, 1} }, rot2 = { { (-1.0)/2, 0, -sqrt(3)/2}, {0, 1, 0}, {sqrt(3)/2, 0, (-1.0)/2} };
-//   vec v={0, l, 0}, v1=app(rot1, v), v2=app(rot2, v1), v3=app(rot2, v2), n, n1, n2, n3;
-//   vec dis[4] = {v, v1, v2, v3};
-//   for (double the=0; the<6.28; the+=0.02) {
-//     ct=cos(the), st=sin(the);
-//     for (double phi=0; phi<3.14; phi+=0.02) {
-//       cp=cos(phi), sp=sin(phi), x=r2*ct*sp, y=r2*st*sp, z=r2*cp;
-//       pts.push_back({r1*ct*sp, r1*st*sp, r1*cp});
-//       nor.push_back({r1*ct*sp, r1*st*sp, r1*cp});
-//       for (int i=0; i<4; ++i) {
-//         pts.push_back({x+dis[i][0], y+dis[i][1], z+dis[i][2]});
-//         nor.push_back({x, y, z});
-//       }
-//     }
-//   }
-//   for (double the=0; the<6.28; the+=0.02) {
-//     co=cos(the), si=sin(the);
-//     for (double h=r1; h<=l-r2; h+=0.3) {
-//       v={r3*co, h, r3*si};
-//       n={r3*co, 0, r3*si};
-//       v1=app(rot1, v);
-//       n1=app(rot1, n);
-//       v2=app(rot2, v1);
-//       n2=app(rot2, n1);
-//       v3=app(rot2, v2);
-//       n3=app(rot2, n2);
-//       pts.push_back(v);
-//       pts.push_back(v1);
-//       pts.push_back(v2);
-//       pts.push_back(v3);
-//       nor.push_back(n);
-//       nor.push_back(n1);
-//       nor.push_back(n2);
-//       nor.push_back(n3);
-//     }
-//   }
-//   for (int i=0; i<pts.size(); ++i) pts[i] = add(pts[i], disp);
-//   draw(pts, nor, dX, dY, dZ, light_dir);
-// }
-//
-// void cone(double r=20, double h=40, double l=50, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}) {
-// }
-// void droplet(double r=20, double h=40, double l=50, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}) {
-// }
-// void pill(double r=20, double h=40, double l=50, double dX=0.08, double dY=0.02, double dZ=0.04, vec light_dir = {0, -1, 1}, vec disp = {0, 0, 0}) {
-// }
-//
-//

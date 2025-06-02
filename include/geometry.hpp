@@ -23,7 +23,6 @@ constexpr int X = 0;
 constexpr int Y = 1;
 constexpr int Z = 2;
 
-
 mat matmul(mat& A, mat& B);
 vec apply(mat& A, vec& v);
 vec rotate(vec& v, dbl ang, axis ax);

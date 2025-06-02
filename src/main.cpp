@@ -21,9 +21,12 @@ void test_animate_simple() {
 }
 
 void test_animate() {
-  dbl r1 = 30, r2 = 60;
+  dbl r1 = 60, r2 = 30;
+  dbl w = 50, h = 80, l = 40;
   std::vector<vec> points, normals;
-  tie(points, normals) = donut(r1, r2);
+  // tie(points, normals) = donut(r1, r2);
+  // tie(points, normals) = ellipsoid(w, h, l);
+  tie(points, normals) = mister_donut(60, 24, 8);
 
   animate(points, normals);
 }
