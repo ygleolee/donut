@@ -6,7 +6,9 @@
 #include <thread>
 #include <iostream>
 
-void draw(std::vector<std::vector<dbl>>& canvas, std::vector<vec>& points, std::vector<vec>& normals, dbl viewer, vec light, light_type light_src_type) {
+namespace donut::core {
+
+void draw(std::vector<std::vector<dbl>>& canvas, std::vector<vec>& points, std::vector<vec>& normals, dbl viewer, vec light, donut::geometry::light_type light_src_type) {
   int n = points.size();
   int wid = canvas.size();
   int hei = canvas[0].size();
@@ -18,23 +20,23 @@ void draw(std::vector<std::vector<dbl>>& canvas, std::vector<vec>& points, std::
     }
   }
 
-  if (light_src_type == PARALLEL) { // treat 'light' as vector
-    light = neg(light);
+  if (light_src_type == donut::geometry::PARALLEL) { // treat 'light' as vector
+    light = donut::geometry::neg(light);
   }
 
   for (int i=0; i<n; ++i) {
     vec pt = points[i];
-    dbl scale = viewer / (viewer - pt[Z]);
-    int x_canvas = (int) round(scale * pt[X] / RANGE * (wid>>1) / RATIO) + (wid>>1); // divide by ratio cuz the ratio of a character is hei/wid
-    int y_canvas = (int) round(scale * pt[Y] / RANGE * (hei>>1)) + (hei>>1);
-    if (!inrange(wid, hei, x_canvas, y_canvas)) continue;
-    if (depth[x_canvas][y_canvas] > pt[Z]) continue;
-    depth[x_canvas][y_canvas] = pt[Z];
+    dbl scale = viewer / (viewer - pt[donut::geometry::Z]);
+    int x_canvas = (int) round(scale * pt[donut::geometry::X] / donut::core::RANGE * (wid>>1) / donut::core::RATIO) + (wid>>1); // divide by ratio cuz the ratio of a character is hei/wid
+    int y_canvas = (int) round(scale * pt[donut::geometry::Y] / donut::core::RANGE * (hei>>1)) + (hei>>1);
+    if (!donut::utils::inrange(wid, hei, x_canvas, y_canvas)) continue;
+    if (depth[x_canvas][y_canvas] > pt[donut::geometry::Z]) continue;
+    depth[x_canvas][y_canvas] = pt[donut::geometry::Z];
     vec light_vec = light;
-    if (light_src_type == POINT) { // treat 'light' as light source
-      light_vec = diff(light, pt);
+    if (light_src_type == donut::geometry::POINT) { // treat 'light' as light source
+      light_vec = donut::geometry::diff(light, pt);
     }
-    dbl brightness = (cosang(light_vec, normals[i]) + 1) / 2; 
+    dbl brightness = (donut::geometry::cosang(light_vec, normals[i]) + 1) / 2; 
     canvas[x_canvas][y_canvas] = brightness;
   }
 
@@ -68,21 +70,21 @@ void draw(std::vector<std::vector<dbl>>& canvas, std::vector<vec>& points, std::
 }
 
 void rotate_shape(std::vector<vec>& points, std::vector<vec>& normals, vec degrees) {
-  mat rot = get_rotation_matrix(degrees);
+  mat rot = donut::geometry::get_rotation_matrix(degrees);
   for (auto& pt : points) {
-    pt = apply(rot, pt);
+    pt = donut::geometry::apply(rot, pt);
   }
   for (auto& nor : normals) {
-    nor = apply(rot, nor);
+    nor = donut::geometry::apply(rot, nor);
   }
 }
 
-void animate_simple(std::vector<vec> points, std::vector<vec>& normals, std::array<dbl, 3> degrees, dbl viewer, vec light, light_type light_src_type, dbl interval) {
+void animate_simple(std::vector<vec> points, std::vector<vec>& normals, std::array<dbl, 3> degrees, dbl viewer, vec light, donut::geometry::light_type light_src_type, dbl interval) {
   int hei, wid;
-  std::tie(hei, wid) = get_terminal_size();
+  std::tie(hei, wid) = donut::utils::get_terminal_size();
   std::vector<std::vector<dbl>> canvas(wid, std::vector<dbl>(hei));
 
-  int n = grayscale.size();
+  int n = donut::core::grayscale.size();
   while (true) {
     printf("\x1b[H");
     draw(canvas, points, normals, viewer, light, light_src_type);
@@ -90,7 +92,7 @@ void animate_simple(std::vector<vec> points, std::vector<vec>& normals, std::arr
       for (int i=0; i<wid; ++i) {
         dbl brightness = canvas[i][j];
         if (brightness < 0) putchar_unlocked(' ');
-        else putchar_unlocked(grayscale[(int) (brightness * (n - 1))]);
+        else putchar_unlocked(donut::core::grayscale[(int) (brightness * (n - 1))]);
       }
       putchar_unlocked('\n');
     }
@@ -105,17 +107,17 @@ void animate(std::vector<vec> points, std::vector<vec>& normals) {
   printf("\x1b[?25l");     // hide cursor
 
   int hei, wid;
-  std::tie(hei, wid) = get_terminal_size();
+  std::tie(hei, wid) = donut::utils::get_terminal_size();
 
-  for (auto& canvas : buffer) {
+  for (auto& canvas : donut::io::buffer) {
     canvas.resize(wid);
     for (auto& row : canvas) {
       row.resize(hei);
     }
   }
 
-  std::thread compute_thread(_compute_thread, std::ref(points), std::ref(normals));
-  std::thread output_thread(_output_thread);
+  std::thread compute_thread(donut::io::_compute_thread, std::ref(points), std::ref(normals));
+  std::thread output_thread(donut::io::_output_thread);
 
   compute_thread.join();
   output_thread.join();
@@ -123,3 +125,4 @@ void animate(std::vector<vec> points, std::vector<vec>& normals) {
   // TODO: put cursor back after animation terminates
 }
 
+}

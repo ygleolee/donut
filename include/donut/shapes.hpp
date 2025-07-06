@@ -8,6 +8,8 @@
 // all "shape" functions return (points, normals)
 // TODO: adjust number of points needed based on resolution? (if bottleneck is I/O, we can just calculate a bunch of points)
 
+
+namespace donut::shapes {
 // r1 = donut radius, r2 = tube radius
 std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2);
 
@@ -15,7 +17,7 @@ std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2);
 std::pair<std::vector<vec>, std::vector<vec>> mister_donut(dbl r1, dbl r2, int n);
 
 // r = radius, if ax==X, circle will be on YZ-plane
-std::pair<std::vector<vec>, std::vector<vec>> circle(dbl r, axis ax);
+std::pair<std::vector<vec>, std::vector<vec>> circle(dbl r, donut::geometry::axis ax);
 
 // width, height, length
 std::pair<std::vector<vec>, std::vector<vec>> cuboid(dbl w, dbl h, dbl l);
@@ -27,3 +29,4 @@ std::pair<std::vector<vec>, std::vector<vec>> ellipsoid(dbl a, dbl b, dbl c);
 std::pair<std::vector<vec>, std::vector<vec>> methane(dbl r1, dbl r2, dbl r3, dbl l);
 
 // TODO: cone, droplet, pill, ...
+}

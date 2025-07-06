@@ -3,6 +3,8 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+namespace donut::utils {
+
 std::pair<int, int> get_terminal_size() {
   struct winsize w;
   if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) {
@@ -15,3 +17,4 @@ bool inrange(int n, int m, int i, int j) {
   return (i < n) && (i >= 0) && (j < m) && (j >= 0);
 }
 
+}

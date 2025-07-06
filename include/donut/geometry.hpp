@@ -7,6 +7,8 @@
 using vec = std::array<dbl, 3>;
 using mat = std::array<std::array<dbl, 3>, 3>;
 
+namespace donut::geometry {
+
 enum axis {
   X_AXIS, Y_AXIS, Z_AXIS
 };
@@ -34,3 +36,4 @@ dbl dot(vec& u, vec& v);
 dbl norm2(vec& v);
 dbl cosang(vec& u, vec& v);
 
+}

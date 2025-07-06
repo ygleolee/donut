@@ -6,16 +6,12 @@
 #include <string>
 #include <vector>
 
+namespace donut::io {
+
 constexpr int MAX_BUFFER_SIZE = 10;
 
-// global variables defined in interactive.cpp for users to control
-extern dbl viewer;
-extern vec rotation;
-extern light_type light_src_type;
-extern vec light_parallel;
-extern vec light_point;
-extern dbl fps; 
-
+// buffer between compute and output thread
+extern std::array<std::vector<std::vector<dbl>>, donut::io::MAX_BUFFER_SIZE> buffer;
 
 std::string move_cursor(int row, int col);
 
@@ -31,3 +27,5 @@ void _compute_thread(
 );
 
 void _output_thread();
+
+}

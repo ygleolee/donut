@@ -19,6 +19,8 @@
 // TODO: cache the data points instead of calculating on the fly
 // TODO: light blocked by other parts of the object ?!
 
+namespace donut::core {
+
 // borders of the real plane ([-range, range] x [-range, range])
 constexpr dbl RANGE = 100;
 
@@ -40,7 +42,7 @@ void draw(
   std::vector<vec>& normals,               // normal vectors of each corresponding point
   dbl viewer,                              // z value of viewer
   vec light,                               // vector if PARALLEL, point in R^3 if POINT
-  light_type light_src_type                // PARALLEL or POINT
+  donut::geometry::light_type light_src_type                // PARALLEL or POINT
 );
 
 // fixed camera, light, viewer, rotation speed
@@ -50,18 +52,14 @@ void animate_simple(
   std::array<dbl, 3> degrees, // angles to rotate about each axis every frame (in radian)
   dbl viewer,                 // z value of viewer
   vec light,                  // vector if PARALLEL, point in R^3 if POINT
-  light_type light_src_type,  // PARALLEL or POINT
+  donut::geometry::light_type light_src_type,  // PARALLEL or POINT
   dbl interval                // interval between each frame
 );
-
-
-// buffer between compute thread and output thread, defined in io.cpp
-extern std::array<std::vector<std::vector<dbl>>, MAX_BUFFER_SIZE> buffer;
 
 // global variables defined in interactive.cpp for users to control
 extern dbl viewer;
 extern vec rotation;
-extern light_type light_src_type;
+extern donut::geometry::light_type light_src_type;
 extern vec light_parallel;
 extern vec light_point;
 extern dbl fps;
@@ -70,3 +68,5 @@ void animate(
   std::vector<vec> points,    // points in R^3 of the shape
   std::vector<vec>& normals   // normal vectors of each corresponding point
 );
+
+}

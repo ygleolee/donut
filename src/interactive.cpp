@@ -1,7 +1,9 @@
 #include "donut/interactive.hpp"
 
+namespace donut::interactive {
+
 dbl viewer = 1200.0;
-light_type light_src_type = PARALLEL;
+donut::geometry::light_type light_src_type = donut::geometry::PARALLEL;
 // light_type light_src_type = POINT;
 vec light_parallel = { 1, -1, -1 };
 vec light_point = { 100, 40, 300 };
@@ -11,3 +13,5 @@ vec rotation = { 0.028, 0.044, 0.053 }; // TODO: change this to per second rotat
 dbl fps = 40;
 
 // TODO: user can press a key (ex. S) to stop the animation somehow ...
+
+}
