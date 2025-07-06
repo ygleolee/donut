@@ -1,7 +1,7 @@
-#include "geometry.hpp"
-#include "core.hpp"
-#include "utils.hpp"
-#include "shapes.hpp"
+#include "donut/geometry.hpp"
+#include "donut/core.hpp"
+#include "donut/utils.hpp"
+#include "donut/shapes.hpp"
 
 #include <iostream>
 

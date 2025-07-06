@@ -1,8 +1,8 @@
-#include "interactive.hpp"
+#include "donut/interactive.hpp"
 
 dbl viewer = 1200.0;
-// light_type light_src_type = PARALLEL;
-light_type light_src_type = POINT;
+light_type light_src_type = PARALLEL;
+// light_type light_src_type = POINT;
 vec light_parallel = { 1, -1, -1 };
 vec light_point = { 100, 40, 300 };
 

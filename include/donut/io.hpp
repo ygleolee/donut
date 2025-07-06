@@ -1,7 +1,7 @@
 #pragma once
 
-#include "utils.hpp"
-#include "geometry.hpp"
+#include "donut/utils.hpp"
+#include "donut/geometry.hpp"
 
 #include <string>
 #include <vector>

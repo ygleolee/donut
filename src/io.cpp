@@ -1,5 +1,5 @@
-#include "io.hpp"
-#include "core.hpp"
+#include "donut/io.hpp"
+#include "donut/core.hpp"
 
 #include <format>
 #include <mutex>
@@ -67,7 +67,7 @@ void _compute_thread(std::vector<vec>& points, std::vector<vec>& normals) {
 void _output_thread() {
   int wid = buffer[0].size();
   int hei = buffer[0][0].size();
-  std::vector<std::vector<dbl>>     canvas(wid, std::vector<dbl>(hei));
+  std::vector<std::vector<dbl>> canvas(wid, std::vector<dbl>(hei));
   std::vector<std::vector<dbl>> old_canvas(wid, std::vector<dbl>(hei, -1));
 
   for (int id = 0; ; id = (id + 1) % MAX_BUFFER_SIZE) {
@@ -87,7 +87,7 @@ void _output_thread() {
     cv_compute.notify_one();
 
     update_screen(canvas, old_canvas);
-    std::this_thread::sleep_for(std::chrono::milliseconds((int) (1000 / fps)));
+    std::this_thread::sleep_for(std::chrono::milliseconds((int64_t) (1000 / fps)));
   }
 }
 
