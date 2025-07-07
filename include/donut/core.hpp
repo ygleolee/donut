@@ -3,7 +3,6 @@
 #include "donut/geometry.hpp"
 #include "donut/types.hpp"
 
-#include <vector>
 #include <string>
 
 // key ideas:
@@ -21,28 +20,36 @@
 namespace donut::core {
 
 // borders of the real plane ([-range, range] x [-range, range])
-constexpr dbl RANGE = 100;
+const dbl RANGE = 100;
 
 // character height/width (TODO: somehow get this from the terminal)
 // TODO: this is not accurate now
-constexpr dbl RATIO = 1.75;
+const dbl RATIO = 1.75;
 
 const std::string grayscale = "......,,,-~:;=!*#$@";
 // const std::string grayscale = ".......................................................'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
 
 // if a pixel differs by THRESHOLD with its neighbors, change it
-constexpr dbl THRESHOLD = 0.2;
+const dbl THRESHOLD = 0.2;
 
 void rotate_shape(ves& points, ves& normals, vec degrees);
 
 void draw(
-  std::vector<std::vector<dbl>>& canvas,  // canvas to draw pixels onto
+  grd& canvas,  // canvas to draw pixels onto
   ves& points,                // points in R^3 of the shape
   ves& normals,               // normal vectors of each corresponding point
   dbl viewer,                              // z value of viewer
   vec light,                               // vector if PARALLEL, point in R^3 if POINT
   donut::geometry::light_type light_src_type                // PARALLEL or POINT
 );
+
+// global variables defined in interactive.cpp for users to control
+extern dbl viewer;
+extern vec rotation;
+extern donut::geometry::light_type light_src_type;
+extern vec light_parallel;
+extern vec light_point;
+extern dbl fps;
 
 // fixed camera, light, viewer, rotation speed
 void animate_simple(
@@ -55,17 +62,9 @@ void animate_simple(
   dbl interval                // interval between each frame
 );
 
-// global variables defined in interactive.cpp for users to control
-extern dbl viewer;
-extern vec rotation;
-extern donut::geometry::light_type light_src_type;
-extern vec light_parallel;
-extern vec light_point;
-extern dbl fps;
-
 void animate(
-  ves points,    // points in R^3 of the shape
-  ves& normals   // normal vectors of each corresponding point
+  ves points,  // points in R^3 of the shape
+  ves normals  // normal vectors of each corresponding point
 );
 
 }

@@ -3,8 +3,6 @@
 #include "donut/types.hpp"
 #include "donut/geometry.hpp"
 
-#include <vector>
-
 // all "shape" functions return (points, normals)
 // TODO: adjust number of points needed based on resolution? (if bottleneck is I/O, we can just calculate a bunch of points)
 

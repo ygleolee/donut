@@ -1,9 +1,11 @@
-#include "donut/geometry.hpp"
+#include "donut/session.hpp"
 #include "donut/core.hpp"
-#include "donut/utils.hpp"
+#include "donut/geometry.hpp"
 #include "donut/shapes.hpp"
+#include "donut/utils.hpp"
 
 #include <iostream>
+#include <thread>
 
 void test_terminal_size() {
   std::pair<int, int> ts = donut::utils::get_terminal_size();
@@ -15,7 +17,7 @@ void test_animate_simple() {
   ves points, normals;
   tie(points, normals) = donut::shapes::donut(r1, r2);
 
-  donut::core::animate_simple(points, normals, {0.05, 0.1, 0.1}, 1000.0, {0, -1, -1}, donut::geometry::PARALLEL, 50000);
+  // donut::core::animate_simple(points, normals, {0.05, 0.1, 0.1}, 1000.0, {0, -1, -1}, donut::geometry::PARALLEL, 50000);
   // animate_simple(points, normals, {0.05, 0.1, 0.1}, 1000.0, {2, -3, -2}, PARALLEL);
   // animate_simple(points, normals, {0.08, 0.02, 0.04}, 1000.0, {200, 100, 200}, POINT);
 }
@@ -32,12 +34,22 @@ void test_animate() {
   donut::core::animate(points, normals);
 }
 
+void test_termios() {
+  donut::session::terminal_mode_set();
+  std::thread input_thread(donut::session::_input_thread);
+  input_thread.join();
+  donut::session::terminal_mode_reset();
+}
+
 int main() {
   // test_terminal_size();
   // test_draw();
   // test_animate_simple();
-  test_animate();
 
+  // donut::session::entry();
+  // test_animate();
+
+  test_termios();
 
   // TODO:
   // usage like "donut --mister_donut --rotate 0.04 0.01 0.5 ..."

@@ -1,17 +1,19 @@
 #include "donut/core.hpp"
-#include "donut/utils.hpp"
 #include "donut/io.hpp"
+#include "donut/session.hpp"
+#include "donut/utils.hpp"
 
 #include <unistd.h>
 #include <thread>
+#include <iostream>
 
 namespace donut::core {
 
-void draw(std::vector<std::vector<dbl>>& canvas, ves& points, ves& normals, dbl viewer, vec light, donut::geometry::light_type light_src_type) {
+void draw(grd& canvas, ves& points, ves& normals, dbl viewer, vec light, donut::geometry::light_type light_src_type) {
   int n = points.size();
   int wid = canvas.size();
   int hei = canvas[0].size();
-  std::vector<std::vector<dbl>> depth(wid, std::vector<dbl>(hei, -1e6));
+  grd depth(wid, std::vector<dbl>(hei, -1e6));
 
   for (int i=0; i<wid; ++i) {
     for (int j=0; j<hei; ++j) {
@@ -78,10 +80,11 @@ void rotate_shape(ves& points, ves& normals, vec degrees) {
   }
 }
 
+// TODO: testing code, remove later
 void animate_simple(ves points, ves& normals, std::array<dbl, 3> degrees, dbl viewer, vec light, donut::geometry::light_type light_src_type, dbl interval) {
   int hei, wid;
   std::tie(hei, wid) = donut::utils::get_terminal_size();
-  std::vector<std::vector<dbl>> canvas(wid, std::vector<dbl>(hei));
+  grd canvas(wid, std::vector<dbl>(hei));
 
   int n = donut::core::grayscale.size();
   while (true) {
@@ -100,10 +103,9 @@ void animate_simple(ves points, ves& normals, std::array<dbl, 3> degrees, dbl vi
   }
 }
 
-// TODO: terminate animation after a certain amount of time?
-void animate(ves points, ves& normals) {
-  printf("\x1b[2J\x1b[H"); // clear screen
-  printf("\x1b[?25l");     // hide cursor
+void animate(ves points, ves normals) {
+  std::cout << "\x1b[2J\x1b[H"; // clear screen
+  std::cout << "\x1b[?25l";     // hide cursor
 
   int hei, wid;
   std::tie(hei, wid) = donut::utils::get_terminal_size();
@@ -115,13 +117,11 @@ void animate(ves points, ves& normals) {
     }
   }
 
-  std::thread compute_thread(donut::io::_compute_thread, std::ref(points), std::ref(normals));
-  std::thread output_thread(donut::io::_output_thread);
+  std::thread compute_thread(donut::session::_compute_thread, points, normals);
+  std::thread output_thread(donut::session::_output_thread);
 
   compute_thread.join();
   output_thread.join();
-
-  // TODO: put cursor back after animation terminates
 }
 
 }

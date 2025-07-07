@@ -20,7 +20,6 @@ target('donut_basic')
     add_files('cli/main.cpp')
     add_deps('donut_lib')  -- link to donut library
 
--- test that CLI11 works
 target('test')
     set_kind('binary')
     set_basename('test')

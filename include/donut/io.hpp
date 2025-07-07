@@ -4,28 +4,23 @@
 #include "donut/types.hpp"
 
 #include <string>
-#include <vector>
 
 namespace donut::io {
 
-constexpr int MAX_BUFFER_SIZE = 10;
+constexpr int MAX_BUFFER_SIZE = 20;
 
 // buffer between compute and output thread
-extern std::array<std::vector<std::vector<dbl>>, donut::io::MAX_BUFFER_SIZE> buffer;
+extern std::array<grd, donut::io::MAX_BUFFER_SIZE> buffer;
+
+extern std::condition_variable cv_compute;
+extern std::condition_variable cv_output;
 
 std::string move_cursor(int row, int col);
 
 // note: directly updates old_canvas
 void update_screen(
-  std::vector<std::vector<dbl>>& canvas,
-  std::vector<std::vector<dbl>>& old_canvas
+  grd& canvas,
+  grd& old_canvas
 );
-
-void _compute_thread(
-  ves& points,
-  ves& normals
-);
-
-void _output_thread();
 
 }
