@@ -1,5 +1,6 @@
 #pragma once
 
+#include "donut/io.hpp"
 #include "donut/types.hpp"
 
 #include <atomic>
@@ -7,7 +8,11 @@
 #include <unistd.h>
 
 namespace donut::session {
+
+const int MAX_BUFFER_SIZE = 20;
+
 extern std::atomic<bool> terminate;
+extern std::array<grd, MAX_BUFFER_SIZE> buffer;
 
 void sigint_handler(int);
 

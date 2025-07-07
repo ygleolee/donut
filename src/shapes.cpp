@@ -1,6 +1,7 @@
 #include "donut/shapes.hpp"
 #include "donut/core.hpp"
 
+#include <cmath>
 #include <numbers>
 
 namespace donut::shapes {

@@ -3,8 +3,6 @@
 #include "donut/geometry.hpp"
 #include "donut/types.hpp"
 
-#include <string>
-
 // key ideas:
 // 1. monitor is XY-plane, Z-axis comes out of screen, origin at center of screen.
 // 2. the object is always located in the square [-100, 100] x [-100, 100]
@@ -19,19 +17,6 @@
 
 namespace donut::core {
 
-// borders of the real plane ([-range, range] x [-range, range])
-const dbl RANGE = 100;
-
-// character height/width (TODO: somehow get this from the terminal)
-// TODO: this is not accurate now
-const dbl RATIO = 1.75;
-
-const std::string grayscale = "......,,,-~:;=!*#$@";
-// const std::string grayscale = ".......................................................'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
-
-// if a pixel differs by THRESHOLD with its neighbors, change it
-const dbl THRESHOLD = 0.2;
-
 void rotate_shape(ves& points, ves& normals, vec degrees);
 
 void draw(
@@ -43,13 +28,13 @@ void draw(
   donut::geometry::light_type light_src_type                // PARALLEL or POINT
 );
 
-// global variables defined in interactive.cpp for users to control
-extern dbl viewer;
-extern vec rotation;
-extern donut::geometry::light_type light_src_type;
-extern vec light_parallel;
-extern vec light_point;
-extern dbl fps;
+// global variables defined in parameter.cpp for users to control
+// extern dbl viewer;
+// extern vec rotation;
+// extern donut::geometry::light_type light_src_type;
+// extern vec light_parallel;
+// extern vec light_point;
+// extern dbl fps;
 
 // fixed camera, light, viewer, rotation speed
 void animate_simple(

@@ -2,7 +2,7 @@ set_project('donut')
 set_version('0.1.0')
 
 -- Global config
-set_languages('cxx20')
+set_languages('cxx23')
 add_rules('mode.debug', 'mode.release')
 
 -- donut core library

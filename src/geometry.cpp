@@ -1,5 +1,7 @@
 #include "donut/geometry.hpp"
 
+#include <cmath>
+
 namespace donut::geometry {
 
 mat matmul(mat& A, mat& B) {

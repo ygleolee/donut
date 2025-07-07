@@ -47,9 +47,9 @@ int main() {
   // test_animate_simple();
 
   // donut::session::entry();
-  // test_animate();
+  test_animate();
 
-  test_termios();
+  // test_termios();
 
   // TODO:
   // usage like "donut --mister_donut --rotate 0.04 0.01 0.5 ..."
