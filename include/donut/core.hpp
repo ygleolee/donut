@@ -1,8 +1,7 @@
 #pragma once
 
-#include "donut/utils.hpp"
-#include "donut/io.hpp"
 #include "donut/geometry.hpp"
+#include "donut/types.hpp"
 
 #include <vector>
 #include <string>
@@ -34,12 +33,12 @@ const std::string grayscale = "......,,,-~:;=!*#$@";
 // if a pixel differs by THRESHOLD with its neighbors, change it
 constexpr dbl THRESHOLD = 0.2;
 
-void rotate_shape(std::vector<vec>& points, std::vector<vec>& normals, vec degrees);
+void rotate_shape(ves& points, ves& normals, vec degrees);
 
 void draw(
   std::vector<std::vector<dbl>>& canvas,  // canvas to draw pixels onto
-  std::vector<vec>& points,                // points in R^3 of the shape
-  std::vector<vec>& normals,               // normal vectors of each corresponding point
+  ves& points,                // points in R^3 of the shape
+  ves& normals,               // normal vectors of each corresponding point
   dbl viewer,                              // z value of viewer
   vec light,                               // vector if PARALLEL, point in R^3 if POINT
   donut::geometry::light_type light_src_type                // PARALLEL or POINT
@@ -47,8 +46,8 @@ void draw(
 
 // fixed camera, light, viewer, rotation speed
 void animate_simple(
-  std::vector<vec> points,    // points in R^3 of the shape
-  std::vector<vec>& normals,  // normal vectors of each corresponding point
+  ves points,    // points in R^3 of the shape
+  ves& normals,  // normal vectors of each corresponding point
   std::array<dbl, 3> degrees, // angles to rotate about each axis every frame (in radian)
   dbl viewer,                 // z value of viewer
   vec light,                  // vector if PARALLEL, point in R^3 if POINT
@@ -65,8 +64,8 @@ extern vec light_point;
 extern dbl fps;
 
 void animate(
-  std::vector<vec> points,    // points in R^3 of the shape
-  std::vector<vec>& normals   // normal vectors of each corresponding point
+  ves points,    // points in R^3 of the shape
+  ves& normals   // normal vectors of each corresponding point
 );
 
 }

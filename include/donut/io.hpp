@@ -1,7 +1,7 @@
 #pragma once
 
-#include "donut/utils.hpp"
 #include "donut/geometry.hpp"
+#include "donut/types.hpp"
 
 #include <string>
 #include <vector>
@@ -22,8 +22,8 @@ void update_screen(
 );
 
 void _compute_thread(
-  std::vector<vec>& points,
-  std::vector<vec>& normals
+  ves& points,
+  ves& normals
 );
 
 void _output_thread();

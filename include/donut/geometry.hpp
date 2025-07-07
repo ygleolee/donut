@@ -1,11 +1,6 @@
 #pragma once
 
-#include "donut/utils.hpp"
-
-#include <array>
-
-using vec = std::array<dbl, 3>;
-using mat = std::array<std::array<dbl, 3>, 3>;
+#include "donut/types.hpp"
 
 namespace donut::geometry {
 

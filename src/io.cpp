@@ -41,7 +41,7 @@ void update_screen(std::vector<std::vector<dbl>>& canvas, std::vector<std::vecto
   fflush(stdout);
 }
 
-void _compute_thread(std::vector<vec>& points, std::vector<vec>& normals) {
+void _compute_thread(ves& points, ves& normals) {
   int wid = buffer[0].size();
   int hei = buffer[0][0].size();
   std::vector<std::vector<dbl>> canvas(wid, std::vector<dbl>(hei, -1));

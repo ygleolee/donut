@@ -4,11 +4,10 @@
 
 #include <unistd.h>
 #include <thread>
-#include <iostream>
 
 namespace donut::core {
 
-void draw(std::vector<std::vector<dbl>>& canvas, std::vector<vec>& points, std::vector<vec>& normals, dbl viewer, vec light, donut::geometry::light_type light_src_type) {
+void draw(std::vector<std::vector<dbl>>& canvas, ves& points, ves& normals, dbl viewer, vec light, donut::geometry::light_type light_src_type) {
   int n = points.size();
   int wid = canvas.size();
   int hei = canvas[0].size();
@@ -69,7 +68,7 @@ void draw(std::vector<std::vector<dbl>>& canvas, std::vector<vec>& points, std::
   // }
 }
 
-void rotate_shape(std::vector<vec>& points, std::vector<vec>& normals, vec degrees) {
+void rotate_shape(ves& points, ves& normals, vec degrees) {
   mat rot = donut::geometry::get_rotation_matrix(degrees);
   for (auto& pt : points) {
     pt = donut::geometry::apply(rot, pt);
@@ -79,7 +78,7 @@ void rotate_shape(std::vector<vec>& points, std::vector<vec>& normals, vec degre
   }
 }
 
-void animate_simple(std::vector<vec> points, std::vector<vec>& normals, std::array<dbl, 3> degrees, dbl viewer, vec light, donut::geometry::light_type light_src_type, dbl interval) {
+void animate_simple(ves points, ves& normals, std::array<dbl, 3> degrees, dbl viewer, vec light, donut::geometry::light_type light_src_type, dbl interval) {
   int hei, wid;
   std::tie(hei, wid) = donut::utils::get_terminal_size();
   std::vector<std::vector<dbl>> canvas(wid, std::vector<dbl>(hei));
@@ -102,7 +101,7 @@ void animate_simple(std::vector<vec> points, std::vector<vec>& normals, std::arr
 }
 
 // TODO: terminate animation after a certain amount of time?
-void animate(std::vector<vec> points, std::vector<vec>& normals) {
+void animate(ves points, ves& normals) {
   printf("\x1b[2J\x1b[H"); // clear screen
   printf("\x1b[?25l");     // hide cursor
 

@@ -5,8 +5,8 @@
 
 namespace donut::shapes {
  
-std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2) {
-  std::vector<vec> points, normals;
+std::pair<ves, ves> donut(dbl r1, dbl r2) {
+  ves points, normals;
   dbl delta_phi = 0.01;
   dbl delta_the = 0.02;
   for (dbl phi=0; phi<6.28; phi+=delta_phi) {
@@ -22,11 +22,11 @@ std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2) {
   return { points, normals };
 }
 
-std::pair<std::vector<vec>, std::vector<vec>> mister_donut(dbl r1, dbl r2, int n) {
-  std::vector<vec> points, normals;
+std::pair<ves, ves> mister_donut(dbl r1, dbl r2, int n) {
+  ves points, normals;
   dbl ang = 2 * std::numbers::pi / n;
 
-  std::vector<vec> points_sphere, normals_sphere;
+  ves points_sphere, normals_sphere;
   std::tie(points_sphere, normals_sphere) = donut::shapes::ellipsoid(r2, r2, r2);
   for (auto& pt:points_sphere) { // shift everything by {r1, 0, 0}
     pt[donut::geometry::X] += r1;
@@ -44,8 +44,8 @@ std::pair<std::vector<vec>, std::vector<vec>> mister_donut(dbl r1, dbl r2, int n
   return { points, normals };
 }
 
-std::pair<std::vector<vec>, std::vector<vec>> circle(dbl r, donut::geometry::axis ax) {
-  std::vector<vec> points, normals;
+std::pair<ves, ves> circle(dbl r, donut::geometry::axis ax) {
+  ves points, normals;
   dbl delta_phi = 0.02;
   for (dbl phi=0; phi<2*std::numbers::pi; phi+=delta_phi) {
     dbl co = cos(phi);
@@ -60,8 +60,8 @@ std::pair<std::vector<vec>, std::vector<vec>> circle(dbl r, donut::geometry::axi
   return { points, normals };
 }
 
-std::pair<std::vector<vec>, std::vector<vec>> cuboid(dbl w, dbl h, dbl l) {
-  std::vector<vec> points, normals;
+std::pair<ves, ves> cuboid(dbl w, dbl h, dbl l) {
+  ves points, normals;
   dbl inc = 0.5;
   for (dbl i=-w/2; i<=w/2; i+=inc) {
     for (dbl j=-h/2; j<=h/2; j+=inc) {
@@ -84,8 +84,8 @@ std::pair<std::vector<vec>, std::vector<vec>> cuboid(dbl w, dbl h, dbl l) {
   return { points, normals };
 }
 
-std::pair<std::vector<vec>, std::vector<vec>> ellipsoid(dbl a, dbl b, dbl c) {
-  std::vector<vec> points, normals;
+std::pair<ves, ves> ellipsoid(dbl a, dbl b, dbl c) {
+  ves points, normals;
   dbl delta_the = 0.02;
   dbl delta_phi = 0.02;
   for (dbl the=0; the<2*std::numbers::pi; the+=delta_the) {
@@ -99,8 +99,8 @@ std::pair<std::vector<vec>, std::vector<vec>> ellipsoid(dbl a, dbl b, dbl c) {
   return { points, normals };
 }
 
-std::pair<std::vector<vec>, std::vector<vec>> methane(dbl r1, dbl r2, dbl r3, dbl l) {
-  std::vector<vec> points, normals;
+std::pair<ves, ves> methane(dbl r1, dbl r2, dbl r3, dbl l) {
+  ves points, normals;
   dbl ang = 109.5 / 180 * std::numbers::pi; // methane bond angle
   mat rot1 = donut::geometry::get_rotation_matrix({0, 0, ang}); // rotate about the z-axis by ang
   mat rot2 = donut::geometry::get_rotation_matrix({0, 2 * std::numbers::pi / 3, 0}); // rotate about the y-axis by 120 degrees
@@ -115,7 +115,7 @@ std::pair<std::vector<vec>, std::vector<vec>> methane(dbl r1, dbl r2, dbl r3, db
   hydrogens[2] = donut::geometry::apply(rot2, hydrogens[1]); // 3rd hydrogen atom is h2 rotated by 120 about the y-axis
   hydrogens[3] = donut::geometry::apply(rot2, hydrogens[2]); // 4th hydrogen atom is h3 rotated by 120 about the y-axis
 
-  std::vector<vec> points_hydrogen, normals_hydrogen;
+  ves points_hydrogen, normals_hydrogen;
   std::tie(points_hydrogen, normals_hydrogen) = ellipsoid(r2, r2, r2);
 
   for (int i=0; i<4; ++i) {
@@ -128,8 +128,8 @@ std::pair<std::vector<vec>, std::vector<vec>> methane(dbl r1, dbl r2, dbl r3, db
   }
 
   // bonds
-  std::vector<vec> points_circle, normals_circle;
-  std::vector<vec> points_bond, normals_bond;
+  ves points_circle, normals_circle;
+  ves points_bond, normals_bond;
   std::tie(points_circle, normals_circle) = circle(r3, donut::geometry::Y_AXIS);
   dbl delta_h = 0.5;
   for (dbl h=0; h<l; h+=delta_h) {

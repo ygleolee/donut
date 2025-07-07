@@ -1,6 +1,6 @@
 #pragma once
 
-#include "donut/utils.hpp"
+#include "donut/types.hpp"
 #include "donut/geometry.hpp"
 
 #include <vector>
@@ -11,22 +11,22 @@
 
 namespace donut::shapes {
 // r1 = donut radius, r2 = tube radius
-std::pair<std::vector<vec>, std::vector<vec>> donut(dbl r1, dbl r2);
+std::pair<ves, ves> donut(dbl r1, dbl r2);
 
 // r1 = donut radius, r2 = sphere radius, n = # of spheres
-std::pair<std::vector<vec>, std::vector<vec>> mister_donut(dbl r1, dbl r2, int n);
+std::pair<ves, ves> mister_donut(dbl r1, dbl r2, int n);
 
 // r = radius, if ax==X, circle will be on YZ-plane
-std::pair<std::vector<vec>, std::vector<vec>> circle(dbl r, donut::geometry::axis ax);
+std::pair<ves, ves> circle(dbl r, donut::geometry::axis ax);
 
 // width, height, length
-std::pair<std::vector<vec>, std::vector<vec>> cuboid(dbl w, dbl h, dbl l);
+std::pair<ves, ves> cuboid(dbl w, dbl h, dbl l);
 
 // axes lengths (note put (r, r, r) to get sphere)
-std::pair<std::vector<vec>, std::vector<vec>> ellipsoid(dbl a, dbl b, dbl c);
+std::pair<ves, ves> ellipsoid(dbl a, dbl b, dbl c);
 
 // r1 = carbon radius, r2 = hydrogen radius, r3 = bond radius, l = bond length
-std::pair<std::vector<vec>, std::vector<vec>> methane(dbl r1, dbl r2, dbl r3, dbl l);
+std::pair<ves, ves> methane(dbl r1, dbl r2, dbl r3, dbl l);
 
 // TODO: cone, droplet, pill, ...
 }

@@ -12,7 +12,7 @@ void test_terminal_size() {
 
 void test_animate_simple() {
   dbl r1 = 30, r2 = 60;
-  std::vector<vec> points, normals;
+  ves points, normals;
   tie(points, normals) = donut::shapes::donut(r1, r2);
 
   donut::core::animate_simple(points, normals, {0.05, 0.1, 0.1}, 1000.0, {0, -1, -1}, donut::geometry::PARALLEL, 50000);
@@ -23,7 +23,7 @@ void test_animate_simple() {
 void test_animate() {
   dbl r1 = 60, r2 = 30;
   dbl w = 50, h = 80, l = 40;
-  std::vector<vec> points, normals;
+  ves points, normals;
   tie(points, normals) = donut::shapes::donut(r1, r2);
   // tie(points, normals) = ellipsoid(w, h, l);
   // tie(points, normals) = mister_donut(60, 24, 8);
@@ -37,7 +37,6 @@ int main() {
   // test_draw();
   // test_animate_simple();
   test_animate();
-
 
 
   // TODO:

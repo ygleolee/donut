@@ -1,7 +1,7 @@
 #pragma once
 
-#include "donut/utils.hpp"
 #include "donut/geometry.hpp"
+#include "donut/types.hpp"
 
 namespace donut::interactive {
   extern dbl viewer;
