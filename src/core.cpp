@@ -1,128 +1,101 @@
 #include "donut/core.hpp"
-#include "donut/io.hpp"
-#include "donut/parameter.hpp"
-#include "donut/session.hpp"
-#include "donut/utils.hpp"
 
-#include <unistd.h>
-#include <thread>
-#include <iostream>
+#include "donut/geometry.hpp"
+#include "donut/parameter.hpp"
+
+#include <algorithm>
+#include <format>
 #include <ranges>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#define oob(n, m, i, j) ((i >= n) || (i < 0) || (j >= m) || (j < 0))
+#define X 0
+#define Y 1
+#define Z 2
 
 namespace donut::core {
 
-void draw(grd& canvas, ves& points, ves& normals, dbl viewer, vec light, donut::geometry::light_type light_src_type) {
+std::pair<int, int> get_terminal_size() {
+  struct winsize w;
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) {
+    return { -1, -1 };
+  }
+  return { w.ws_row, w.ws_col };
+}
+
+std::string move_cursor(int row, int col) {
+  return std::format("\x1b[{};{}H", row, col);
+}
+
+void update_screen(grd& canvas, grd& old_canvas) {
+  int wid = canvas.size();
+  int hei = canvas[0].size();
+  int n = parameter::params.display.grayscale.size();
+
+  std::string output = "\x1b[H";
+
+  for (int j=hei-1; j>=0; --j) {
+    for (int i=0; i<wid; ++i) {
+      char cur =     canvas[i][j] < 0 ? ' ' : parameter::params.display.grayscale[(int) (    canvas[i][j] * (n - 1))];
+      char old = old_canvas[i][j] < 0 ? ' ' : parameter::params.display.grayscale[(int) (old_canvas[i][j] * (n - 1))];
+      if (cur != old) {
+        output += move_cursor(hei - j, i + 1) + cur;
+        old_canvas[i][j] = cur;
+      }
+    }
+  }
+  fwrite(output.data(), 1, output.size(), stdout);
+  fflush(stdout);
+}
+
+void draw(grd& canvas, ves& points, ves& normals) {
+  light_type type;
+  vec light;
+  dbl z;
+  dbl range;
+  dbl char_ratio;
+
+  {
+    std::scoped_lock<std::mutex> lock(parameter::params_mtx);
+    using namespace parameter;
+    type = params.light.type;
+    light = (type == PARALLEL) ? geometry::neg(params.light.parallel) : params.light.point;
+    z = params.camera.z;
+    range = params.display.range;
+    char_ratio = params.display.char_ratio;
+  }
+
   int wid = canvas.size();
   int hei = canvas[0].size();
   grd depth(wid, std::vector<dbl>(hei, -1e6));
-
   for (int i=0; i<wid; ++i) {
-    for (int j=0; j<hei; ++j) {
-      canvas[i][j] = -1;
-    }
+    std::fill(canvas[i].begin(), canvas[i].end(), -1);
   }
 
-  if (light_src_type == donut::geometry::PARALLEL) { // treat 'light' as vector
-    light = donut::geometry::neg(light);
-  }
-
-  // for (int i=0; i<n; ++i) {
   for (auto const &[pt, nor] : std::views::zip(points, normals)) {
-    dbl scale = viewer / (viewer - pt[donut::geometry::Z]);
-    int x_canvas = (int) round(scale * pt[donut::geometry::X] / donut::parameter::params.display.range * (wid>>1) / donut::parameter::params.display.char_ratio) + (wid>>1); // divide by ratio cuz the ratio of a character is hei/wid
-    int y_canvas = (int) round(scale * pt[donut::geometry::Y] / donut::parameter::params.display.range * (hei>>1)) + (hei>>1);
-    if (!donut::utils::inrange(wid, hei, x_canvas, y_canvas)) continue;
-    if (depth[x_canvas][y_canvas] > pt[donut::geometry::Z]) continue;
-    depth[x_canvas][y_canvas] = pt[donut::geometry::Z];
+    dbl scale = z / (z - pt[Z]);
+    int x_canvas = (int) round(scale * pt[X] / range * (wid >> 1) / char_ratio) + (wid >> 1);
+    int y_canvas = (int) round(scale * pt[Y] / range * (hei >> 1)) + (hei >> 1);
+    if (oob(wid, hei, x_canvas, y_canvas) || depth[x_canvas][y_canvas] > pt[Z]) continue;
+    depth[x_canvas][y_canvas] = pt[Z];
     vec light_vec = light;
-    if (light_src_type == donut::geometry::POINT) { // treat 'light' as light source
-      light_vec = donut::geometry::diff(light, pt);
+    if (type == POINT) { // treat 'light' as light source
+      light_vec = geometry::diff(light, pt);
     }
-    dbl brightness = (donut::geometry::cosang(light_vec, nor) + 1) / 2; 
+    dbl brightness = (geometry::cosang(light_vec, nor) + 1) / 2; 
     canvas[x_canvas][y_canvas] = brightness;
   }
-
-  // TODO: some angles cause a pixel that should be empty to have 3 non-empty neighbors, so the criteria doesn't work
-  //       ideally, want the criteria to be neg <= 1 (cuz might be adjacent missed pixels)
-  //       but even <= 0 cause issues somehow (when the middle hole becomes a cresent like shape)
-
-  // for (int t=0; t<3; ++t) {
-  //   for (int i=1; i<wid-1; ++i) { // only do [1, wid-1) to avoid out of bounds checks
-  //     for (int j=1; j<hei-1; ++j) {
-  //       int cnt = 0; // adjust if at least 2 neighbors are (significantly) different
-  //       int neg = 0; // if more than 1 neighbors have negative depth, dont adjust (need shape to be convex?)
-  //       dbl set = 0;
-  //       for (int k=0; k<4; ++k) {
-  //         int i_ = i + dx[k];
-  //         int j_ = j + dy[k];
-  //         if (canvas[i_][j_] < 0) { // dont adjust edges of the shape
-  //           ++neg;
-  //         }
-  //         else if (canvas[i_][j_] - canvas[i][j] > 0.2) { // WARN: hardcoded parameter
-  //           set += canvas[i_][j_];
-  //           ++cnt;
-  //         }
-  //       }
-  //       if (neg <= 0 && cnt >= 2) {
-  //         canvas[i][j] = set / cnt;
-  //       }
-  //     }
-  //   }
-  // }
 }
 
 void rotate_shape(ves& points, ves& normals, vec degrees) {
-  mat rot = donut::geometry::get_rotation_matrix(degrees);
-  for (auto& pt : points) {
-    pt = donut::geometry::apply(rot, pt);
-  }
-  for (auto& nor : normals) {
-    nor = donut::geometry::apply(rot, nor);
-  }
-}
-
-// TODO: testing code, remove later
-void animate_simple(ves points, ves& normals, std::array<dbl, 3> degrees, dbl viewer, vec light, donut::geometry::light_type light_src_type, dbl interval) {
-  int hei, wid;
-  std::tie(hei, wid) = donut::utils::get_terminal_size();
-  grd canvas(wid, std::vector<dbl>(hei));
-
-  int n = donut::parameter::params.display.grayscale.size();
-  while (true) {
-    printf("\x1b[H");
-    draw(canvas, points, normals, viewer, light, light_src_type);
-    for (int j=hei-1; j>=0; --j) {
-      for (int i=0; i<wid; ++i) {
-        dbl brightness = canvas[i][j];
-        if (brightness < 0) putchar_unlocked(' ');
-        else putchar_unlocked(donut::parameter::params.display.grayscale[(int) (brightness * (n - 1))]);
-      }
-      putchar_unlocked('\n');
-    }
-    rotate_shape(points, normals, degrees);
-    usleep(interval);
-  }
-}
-
-void animate(ves points, ves normals) {
-  std::cout << "\x1b[2J\x1b[H"; // clear screen
-  std::cout << "\x1b[?25l";     // hide cursor
-
-  int hei, wid;
-  std::tie(hei, wid) = donut::utils::get_terminal_size();
-
-  for (auto& canvas : donut::session::buffer) {
-    canvas.resize(wid);
-    for (auto& row : canvas) {
-      row.resize(hei);
-    }
-  }
-
-  std::thread compute_thread(donut::session::_compute_thread, points, normals);
-  std::thread output_thread(donut::session::_output_thread);
-
-  compute_thread.join();
-  output_thread.join();
+  mat rot = geometry::get_rotation_matrix(degrees);
+  std::ranges::for_each(points, [&](vec& pt) {
+    pt = geometry::apply(rot, pt);
+  });
+  std::ranges::for_each(normals, [&](vec& nor) {
+    nor = geometry::apply(rot, nor);
+  });
 }
 
 }

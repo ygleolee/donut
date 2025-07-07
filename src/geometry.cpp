@@ -5,7 +5,7 @@
 namespace donut::geometry {
 
 mat matmul(mat& A, mat& B) {
-  mat ans = donut::geometry::Zero;
+  mat ans = geometry::Zero;
   for (int i=0; i<3; ++i)
     for (int j=0; j<3; ++j)
       for (int k=0; k<3; ++k)
@@ -14,37 +14,37 @@ mat matmul(mat& A, mat& B) {
 }
 
 vec apply(mat& A, vec& v) {
-  vec ans = donut::geometry::zero;
+  vec ans = geometry::zero;
   for (int i=0; i<3; ++i)
     for (int j=0; j<3; ++j)
       ans[i] += A[i][j] * v[j];
   return ans;
 }
 
-vec rotate(vec& v, dbl ang, donut::geometry::axis ax) {
-  mat rot = donut::geometry::Zero;
+vec rotate(vec& v, dbl ang, geometry::axis ax) {
+  mat rot = geometry::Zero;
   dbl sin_ang = sin(ang);
   dbl cos_ang = cos(ang);
   switch(ax) {
-    case donut::geometry::X_AXIS:
+    case geometry::X_AXIS:
       rot = {{ { 1, 0, 0 }, { 0, cos_ang, -sin_ang }, { 0, sin_ang, cos_ang } }};
       break;
-    case donut::geometry::Y_AXIS:
+    case geometry::Y_AXIS:
       rot = {{ { cos_ang, 0, -sin_ang }, { 0, 1, 0 }, { sin_ang, 0, cos_ang } }};
       break;
-    case donut::geometry::Z_AXIS:
+    case geometry::Z_AXIS:
       rot = {{ { cos_ang, -sin_ang, 0 }, { sin_ang, cos_ang, 0 }, { 0, 0, 1 } }};
   }
   return apply(rot, v);
 }
 
 mat get_rotation_matrix(vec degrees) {
-  dbl cos_x = cos(degrees[donut::geometry::X]);
-  dbl sin_x = sin(degrees[donut::geometry::X]);
-  dbl cos_y = cos(degrees[donut::geometry::Y]);
-  dbl sin_y = sin(degrees[donut::geometry::Y]);
-  dbl cos_z = cos(degrees[donut::geometry::Z]);
-  dbl sin_z = sin(degrees[donut::geometry::Z]);
+  dbl cos_x = cos(degrees[X]);
+  dbl sin_x = sin(degrees[X]);
+  dbl cos_y = cos(degrees[Y]);
+  dbl sin_y = sin(degrees[Y]);
+  dbl cos_z = cos(degrees[Z]);
+  dbl sin_z = sin(degrees[Z]);
   mat rot_x = {{ { 1, 0, 0 }, { 0, cos_x, -sin_x }, { 0, sin_x, cos_x } }};
   mat rot_y = {{ { cos_y, 0, sin_y }, { 0, 1, 0 }, { -sin_y, 0, cos_y } }};
   mat rot_z = {{ { cos_z, -sin_z, 0 }, { sin_z, cos_z, 0 }, { 0, 0, 1 } }};
@@ -67,7 +67,7 @@ vec neg(vec& v) {
 }
 
 vec unit(vec& v) {
-  dbl siz = sqrt(donut::geometry::norm2(v));
+  dbl siz = sqrt(geometry::norm2(v));
   vec res = {v[0]/siz, v[1]/siz, v[2]/siz};
   return res;
 }

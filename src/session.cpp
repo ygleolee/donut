@@ -1,11 +1,12 @@
+#include "donut/session.hpp"
+
 #include "donut/core.hpp"
 #include "donut/parameter.hpp"
-#include "donut/io.hpp"
-#include "donut/session.hpp"
-#include "donut/utils.hpp"
 
 #include <csignal>
 #include <iostream>
+#include <mutex>
+#include <termios.h>
 #include <thread>
 
 namespace donut::session {
@@ -15,6 +16,7 @@ std::atomic<bool> terminate(false);
 termios orig;
 
 std::mutex buffer_mtx;
+
 std::condition_variable cv_compute;
 std::condition_variable cv_output;
 int buffer_cnt = 0;
@@ -33,16 +35,15 @@ void terminal_mode_set() {
 void terminal_mode_reset() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig);
 
-  std::cout << "\x1b[?25h"; // show cursor
-  std::cout << "\x1b[H";    // move cursor to home
+  std::cout << "\x1b[2J\x1b[H"; // clear screen
+  std::cout << "\x1b[?25h";     // show cursor
+  std::cout << "\x1b[H";        // move cursor to home
 }
 
 void sigint_handler(int) {
   terminate = true;
-
-  donut::io::cv_compute.notify_all();
-  donut::io::cv_output.notify_all();
-
+  session::cv_compute.notify_all();
+  session::cv_output.notify_all();
   terminal_mode_reset();
 }
 
@@ -52,7 +53,7 @@ void entry() {
 
   // setup buffer
   int hei, wid;
-  std::tie(hei, wid) = donut::utils::get_terminal_size();
+  std::tie(hei, wid) = core::get_terminal_size();
   for (auto& canvas : buffer) {
     canvas.resize(wid);
     for (auto& row : canvas) {
@@ -112,20 +113,20 @@ void _compute_thread(ves points, ves normals) {
   int hei = buffer[0][0].size();
   grd canvas(wid, std::vector<dbl>(hei, -1));
 
-  for (int id = 0; !donut::session::terminate; id = (id + 1) % MAX_BUFFER_SIZE) {
+  for (int id = 0; !session::terminate; id = (id + 1) % MAX_BUFFER_SIZE) {
     {
       std::unique_lock<std::mutex> lock(buffer_mtx);
       cv_compute.wait(lock, [] {
-        return buffer_cnt < MAX_BUFFER_SIZE || donut::session::terminate;
+        return buffer_cnt < MAX_BUFFER_SIZE || session::terminate;
       });
-      if (donut::session::terminate) break;
+      if (session::terminate) break;
     }
 
-    donut::core::draw(canvas, points, normals, donut::parameter::params.camera.z, (donut::parameter::params.light.type == donut::geometry::PARALLEL ? donut::parameter::params.light.parallel : donut::parameter::params.light.point), donut::parameter::params.light.type);
-    donut::core::rotate_shape(points, normals, donut::parameter::params.shape.rps);
+    core::draw(canvas, points, normals);
+    core::rotate_shape(points, normals, parameter::params.shape.rps);
 
     {
-      std::lock_guard<std::mutex> lock(buffer_mtx);
+      std::scoped_lock<std::mutex> lock(buffer_mtx);
       buffer[id] = canvas;
       buffer_cnt += 1;
     }
@@ -144,21 +145,21 @@ void _output_thread() {
     {
       std::unique_lock<std::mutex> lock(buffer_mtx);
       cv_output.wait(lock, [] {
-        return buffer_cnt > 0 || donut::session::terminate;
+        return buffer_cnt > 0 || session::terminate;
       });
-      if (donut::session::terminate) break;
+      if (session::terminate) break;
     }
 
     {
-      std::lock_guard<std::mutex> lock(buffer_mtx);
+      std::scoped_lock<std::mutex> lock(buffer_mtx);
       canvas = buffer[id];
       buffer_cnt -= 1;
     }
 
     cv_compute.notify_one();
 
-    donut::io::update_screen(canvas, old_canvas);
-    std::this_thread::sleep_for(std::chrono::milliseconds((int64_t) (1000 / donut::parameter::params.display.fps)));
+    core::update_screen(canvas, old_canvas);
+    std::this_thread::sleep_for(std::chrono::milliseconds((int64_t) (1000 / parameter::params.display.fps)));
   }
 }
 

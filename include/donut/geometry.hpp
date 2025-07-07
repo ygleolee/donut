@@ -8,13 +8,10 @@ enum axis {
   X_AXIS, Y_AXIS, Z_AXIS
 };
 
-enum light_type {
-  PARALLEL, POINT
-};
-
 const vec zero = { 0, 0, 0 };
 const mat Zero = { zero, zero, zero };
 const mat Iden = {{ {1, 0, 0}, {0, 1, 0}, {0, 0, 1} }};
+
 const int X = 0;
 const int Y = 1;
 const int Z = 2;

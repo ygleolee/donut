@@ -11,11 +11,15 @@
 // fps: frames per second of animation
 // grayscale: ascii grayscale (TODO: the first half must all be . maybe add this automatically?)
 
+#include <mutex>
+
 namespace donut::parameter {
+
+std::mutex params_mtx;
 
 struct params default_params = {
   .light = {
-    .type = donut::geometry::PARALLEL,
+    .type = PARALLEL,
     .parallel = { 0, -1, -1 },
     .point = { 100, 40, 300 },
     .rps = { 0, 0, 0 },

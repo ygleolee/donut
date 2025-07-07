@@ -1,6 +1,5 @@
 #pragma once
 
-#include "donut/geometry.hpp"
 #include "donut/types.hpp"
 
 // key ideas:
@@ -17,39 +16,10 @@
 
 namespace donut::core {
 
+std::string move_cursor(int row, int col);
+void update_screen(grd& canvas, grd& old_canvas);
+std::pair<int, int> get_terminal_size();
 void rotate_shape(ves& points, ves& normals, vec degrees);
-
-void draw(
-  grd& canvas,  // canvas to draw pixels onto
-  ves& points,                // points in R^3 of the shape
-  ves& normals,               // normal vectors of each corresponding point
-  dbl viewer,                              // z value of viewer
-  vec light,                               // vector if PARALLEL, point in R^3 if POINT
-  donut::geometry::light_type light_src_type                // PARALLEL or POINT
-);
-
-// global variables defined in parameter.cpp for users to control
-// extern dbl viewer;
-// extern vec rotation;
-// extern donut::geometry::light_type light_src_type;
-// extern vec light_parallel;
-// extern vec light_point;
-// extern dbl fps;
-
-// fixed camera, light, viewer, rotation speed
-void animate_simple(
-  ves points,    // points in R^3 of the shape
-  ves& normals,  // normal vectors of each corresponding point
-  std::array<dbl, 3> degrees, // angles to rotate about each axis every frame (in radian)
-  dbl viewer,                 // z value of viewer
-  vec light,                  // vector if PARALLEL, point in R^3 if POINT
-  donut::geometry::light_type light_src_type,  // PARALLEL or POINT
-  dbl interval                // interval between each frame
-);
-
-void animate(
-  ves points,  // points in R^3 of the shape
-  ves normals  // normal vectors of each corresponding point
-);
+void draw(grd& canvas, ves& points, ves& normals);
 
 }

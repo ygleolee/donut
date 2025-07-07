@@ -1,44 +1,8 @@
-#include "donut/geometry.hpp"
-#include "donut/core.hpp"
-#include "donut/utils.hpp"
-#include "donut/shapes.hpp"
+#include "donut/donut.hpp"
 
 #include <iostream>
 
-void test_terminal_size() {
-  std::pair<int, int> ts = donut::utils::get_terminal_size();
-  std::cout << ts.first << ' ' << ts.second << std::endl;
-}
-
-void test_animate_simple() {
-  dbl r1 = 30, r2 = 60;
-  ves points, normals;
-  tie(points, normals) = donut::shapes::donut(r1, r2);
-
-  donut::core::animate_simple(points, normals, {0.05, 0.1, 0.1}, 1000.0, {0, -1, -1}, donut::geometry::PARALLEL, 50000);
-  // animate_simple(points, normals, {0.05, 0.1, 0.1}, 1000.0, {2, -3, -2}, PARALLEL);
-  // animate_simple(points, normals, {0.08, 0.02, 0.04}, 1000.0, {200, 100, 200}, POINT);
-}
-
-void test_animate() {
-  dbl r1 = 60, r2 = 30;
-  dbl w = 50, h = 80, l = 40;
-  ves points, normals;
-  tie(points, normals) = donut::shapes::donut(r1, r2);
-  // tie(points, normals) = ellipsoid(w, h, l);
-  // tie(points, normals) = mister_donut(60, 24, 8);
-  // tie(points, normals) = methane(24, 12, 4, 85);
-
-  donut::core::animate(points, normals);
-}
-
 int main() {
-  // test_terminal_size();
-  // test_draw();
-  // test_animate_simple();
-  test_animate();
-
-
   // TODO:
   // usage like "donut --mister_donut --rotate 0.04 0.01 0.5 ..."
   //            "donut" (this should draw the classic donut !!)
@@ -54,3 +18,5 @@ int main() {
   //     grayscale
   //    
 }
+
+

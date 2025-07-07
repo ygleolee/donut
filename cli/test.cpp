@@ -1,25 +1,14 @@
 #include "donut/session.hpp"
 #include "donut/core.hpp"
-#include "donut/geometry.hpp"
 #include "donut/shapes.hpp"
-#include "donut/utils.hpp"
 
 #include <iostream>
 #include <thread>
+#include <csignal>
 
 void test_terminal_size() {
-  std::pair<int, int> ts = donut::utils::get_terminal_size();
+  std::pair<int, int> ts = donut::core::get_terminal_size();
   std::cout << ts.first << ' ' << ts.second << std::endl;
-}
-
-void test_animate_simple() {
-  dbl r1 = 30, r2 = 60;
-  ves points, normals;
-  tie(points, normals) = donut::shapes::donut(r1, r2);
-
-  // donut::core::animate_simple(points, normals, {0.05, 0.1, 0.1}, 1000.0, {0, -1, -1}, donut::geometry::PARALLEL, 50000);
-  // animate_simple(points, normals, {0.05, 0.1, 0.1}, 1000.0, {2, -3, -2}, PARALLEL);
-  // animate_simple(points, normals, {0.08, 0.02, 0.04}, 1000.0, {200, 100, 200}, POINT);
 }
 
 void test_animate() {
@@ -28,10 +17,31 @@ void test_animate() {
   ves points, normals;
   tie(points, normals) = donut::shapes::donut(r1, r2);
   // tie(points, normals) = ellipsoid(w, h, l);
-  // tie(points, normals) = mister_donut(60, 24, 8);
-  // tie(points, normals) = methane(24, 12, 4, 85);
+  // tie(points, normals) = donut::shapes::mister_donut(60, 24, 8);
+  // tie(points, normals) = donut::shapes::methane(24, 12, 4, 85);
+  
+  std::signal(SIGINT, donut::session::sigint_handler);
+  donut::session::terminal_mode_set();
 
-  donut::core::animate(points, normals);
+  // setup buffer
+  int hei, wid;
+  std::tie(hei, wid) = donut::core::get_terminal_size();
+  for (auto& canvas : donut::session::buffer) {
+    canvas.resize(wid);
+    for (auto& row : canvas) {
+      row.resize(hei);
+    }
+  }
+
+  std::thread input_thread(donut::session::_input_thread);
+  std::thread output_thread(donut::session::_output_thread);
+  std::thread compute_thread(donut::session::_compute_thread, points, normals);
+
+  input_thread.join();
+  output_thread.join();
+  compute_thread.join();
+
+  donut::session::terminal_mode_reset();
 }
 
 void test_termios() {
@@ -44,25 +54,10 @@ void test_termios() {
 int main() {
   // test_terminal_size();
   // test_draw();
-  // test_animate_simple();
 
   // donut::session::entry();
   test_animate();
 
   // test_termios();
 
-  // TODO:
-  // usage like "donut --mister_donut --rotate 0.04 0.01 0.5 ..."
-  //            "donut" (this should draw the classic donut !!)
-  //            "donut --cube --interactive"
-  // list of things users can change
-  //   animation related:
-  //     rotation
-  //     viewer
-  //     light src_type (toggle)
-  //     light direction / location (depending on type)
-  //   others (might need to change to not const):
-  //     CACHE_SIZE
-  //     grayscale
-  //    
 }

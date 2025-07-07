@@ -1,7 +1,7 @@
 #pragma once
 
-#include "donut/types.hpp"
 #include "donut/geometry.hpp"
+#include "donut/types.hpp"
 
 // all "shape" functions return (points, normals)
 // TODO: adjust number of points needed based on resolution? (if bottleneck is I/O, we can just calculate a bunch of points)

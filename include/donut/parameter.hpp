@@ -1,14 +1,19 @@
 #pragma once
 
-#include "donut/geometry.hpp"
 #include "donut/types.hpp"
 
+#include <mutex>
+
 // TODO: add randomness option for rps's
+// other desireable controls
+// one-time rotate the donut (apart from periodical rotation)
 
 namespace donut::parameter {
 
+extern std::mutex params_mtx;
+
 struct light {
-  donut::geometry::light_type type;
+  light_type type;
   vec parallel;
   vec point;
   vec rps;
@@ -42,6 +47,3 @@ struct params {
 extern struct params params;
 
 }
-
-// other desireable controls
-// one-time rotate the donut (apart from periodical rotation)

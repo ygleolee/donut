@@ -1,3 +1,5 @@
+#pragma once
+
 #include <array>
 #include <vector>
 
@@ -6,3 +8,7 @@ using vec = std::array<dbl, 3>;
 using ves = std::vector<vec>;
 using mat = std::array<std::array<dbl, 3>, 3>;
 using grd = std::vector<std::vector<dbl>>;
+
+enum light_type {
+  PARALLEL, POINT
+};

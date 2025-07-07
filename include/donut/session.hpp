@@ -1,10 +1,8 @@
 #pragma once
 
-#include "donut/io.hpp"
 #include "donut/types.hpp"
 
 #include <atomic>
-#include <termios.h>
 #include <unistd.h>
 
 namespace donut::session {
