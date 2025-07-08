@@ -2,12 +2,12 @@
 
 // Available parameters
 // range: borders of the real plane ([-range, range] x [-range, range])
-// char_ratio: character height/width (TODO: somehow get this from the terminal)
+// char_ratio: character height/width (TODO: get this from the terminal via env var)
 // viewer: viewer Z value
 // light_src_type: parallel or point
 //   light_parallel: direction of the light (for parallel)
 //   light_point: absolute coordinates of the light (for point)
-// rotation: radian per sec (TODO: current implementation is not per sec)
+// rotation: radian per sec
 // fps: frames per second of animation
 // grayscale: ascii grayscale (TODO: the first half must all be . maybe add this automatically?)
 
@@ -29,6 +29,7 @@ struct params default_params = {
   },
   .shape = {
     .rps = { 0.028, 0.044, 0.053 },
+    .delta = 0.2,
   },
   .display = {
     .grayscale = "......,,,-~:;=!*#$@",
@@ -38,6 +39,6 @@ struct params default_params = {
   },
 };
 
-struct params params = default_params;
+struct params cur_params = default_params;
 
 }

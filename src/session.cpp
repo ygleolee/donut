@@ -1,6 +1,7 @@
 #include "donut/session.hpp"
 
 #include "donut/core.hpp"
+#include "donut/input.hpp"
 #include "donut/parameter.hpp"
 
 #include <csignal>
@@ -9,18 +10,40 @@
 #include <termios.h>
 #include <thread>
 
+// input handling
+//   xXyYzZ: increase/decrease rotation speed in that direction
+//   ctrl-c: quit
+//   TODO: space: start/pause
+//   TODO: p: toggle parallel/point
+//   TODO: wasdqe: controls light
+//      - par: rotate about each axis
+//      - pnt: move along direction
+//   TODO: hjkl: move camera (h and l effectively rotates the shape)
+//   TODO: c: show config
+//   TODO: f: next frame (only when paused)
+
+// TODO: move compute_thread buffer index to (output + 3), i.e. only keep 3 cached frames
+
+// TODO: implement config page
+// show current rps, light src, light vec, grayscale, etc.
+
 namespace donut::session {
 
-std::atomic<bool> terminate(false);
+const int DEBOUNCE_MS = 50;
 
-termios orig;
+std::atomic<bool> terminate(false);
+std::atomic<int> advance(-1); // -1: keep going, >=0: play that many frames and stop
+std::atomic<int> compute_idx(0);
+std::atomic<int> output_idx(0);
 
 std::mutex buffer_mtx;
+int buffer_cnt = 0;
+std::array<grd, MAX_BUFFER_SIZE> buffer;
 
 std::condition_variable cv_compute;
 std::condition_variable cv_output;
-int buffer_cnt = 0;
-std::array<grd, MAX_BUFFER_SIZE> buffer;
+
+termios orig;
 
 void terminal_mode_set() {
   tcgetattr(STDIN_FILENO, &orig);
@@ -42,8 +65,8 @@ void terminal_mode_reset() {
 
 void sigint_handler(int) {
   terminate = true;
-  session::cv_compute.notify_all();
-  session::cv_output.notify_all();
+  cv_compute.notify_all();
+  cv_output.notify_all();
   terminal_mode_reset();
 }
 
@@ -73,9 +96,8 @@ void entry() {
 }
 
 void _input_thread() {
-  constexpr int debounce_ms = 50;
   auto last_input = std::chrono::steady_clock::now();
-    fd_set readfds;
+  fd_set readfds;
 
   while (!terminate) {
     FD_ZERO(&readfds);
@@ -88,22 +110,10 @@ void _input_thread() {
       ssize_t n = read(STDIN_FILENO, buf, sizeof(buf));
 
       auto now = std::chrono::steady_clock::now();
-      if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_input).count() < debounce_ms) {
-        continue;
-      }
+      if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_input).count() < DEBOUNCE_MS) continue;
       last_input = now;
 
-      if (n == 1 && buf[0] == 'q') {
-        std::cout << "\n[DonutSession] Quitting input loop...\n";
-        terminate = true;
-      } else if (n == 3 && buf[0] == '\x1b' && buf[1] == '[') {
-        switch (buf[2]) {
-          case 'A': std::cout << "↑ Up\n"; break;
-          case 'B': std::cout << "↓ Down\n"; break;
-          case 'C': std::cout << "→ Right\n"; break;
-          case 'D': std::cout << "← Left\n"; break;
-        }
-      }
+      input::handle_user_input(n, buf);
     }
   }
 }
@@ -112,25 +122,35 @@ void _compute_thread(ves points, ves normals) {
   int wid = buffer[0].size();
   int hei = buffer[0][0].size();
   grd canvas(wid, std::vector<dbl>(hei, -1));
+  vec rps;
+  dbl fps;
 
-  for (int id = 0; !session::terminate; id = (id + 1) % MAX_BUFFER_SIZE) {
+  while (!terminate) {
     {
       std::unique_lock<std::mutex> lock(buffer_mtx);
       cv_compute.wait(lock, [] {
-        return buffer_cnt < MAX_BUFFER_SIZE || session::terminate;
+        return buffer_cnt < MAX_BUFFER_SIZE || terminate;
       });
-      if (session::terminate) break;
+      if (terminate) break;
     }
 
     core::draw(canvas, points, normals);
-    core::rotate_shape(points, normals, parameter::params.shape.rps);
-
+    {
+      std::scoped_lock<std::mutex> lock(parameter::params_mtx);
+      rps = parameter::cur_params.shape.rps;
+      fps = parameter::cur_params.display.fps;
+    }
+    for (auto& r : rps) r /= fps;
+    core::rotate_shape(points, normals, rps);
+    
+    int id = compute_idx;
     {
       std::scoped_lock<std::mutex> lock(buffer_mtx);
       buffer[id] = canvas;
       buffer_cnt += 1;
     }
 
+    compute_idx = (compute_idx + 1) % MAX_BUFFER_SIZE;
     cv_output.notify_one();
   }
 }
@@ -140,26 +160,36 @@ void _output_thread() {
   int hei = buffer[0][0].size();
   grd canvas(wid, std::vector<dbl>(hei));
   grd old_canvas(wid, std::vector<dbl>(hei, -1));
+  int fps;
 
-  for (int id = 0; ; id = (id + 1) % MAX_BUFFER_SIZE) {
+  while (!terminate) {
+    if (advance == 0) continue;
+    else if (advance > 0) --advance;
+
     {
       std::unique_lock<std::mutex> lock(buffer_mtx);
       cv_output.wait(lock, [] {
-        return buffer_cnt > 0 || session::terminate;
+        return buffer_cnt > 0 || terminate;
       });
-      if (session::terminate) break;
+      if (terminate) break;
     }
 
+    int id = output_idx;
     {
       std::scoped_lock<std::mutex> lock(buffer_mtx);
       canvas = buffer[id];
       buffer_cnt -= 1;
     }
 
+    output_idx = (output_idx + 1) % MAX_BUFFER_SIZE;
     cv_compute.notify_one();
 
     core::update_screen(canvas, old_canvas);
-    std::this_thread::sleep_for(std::chrono::milliseconds((int64_t) (1000 / parameter::params.display.fps)));
+    {
+      std::scoped_lock<std::mutex> lock(parameter::params_mtx);
+      fps = parameter::cur_params.display.fps;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds((int64_t) (1000 / fps)));
   }
 }
 

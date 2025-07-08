@@ -27,6 +27,7 @@ struct camera {
 
 struct shape {
   vec rps;
+  dbl delta; // change with one press
   // bool rand;
 };
 
@@ -34,7 +35,7 @@ struct display {
   std::string grayscale;
   dbl range;
   dbl char_ratio;
-  dbl fps;
+  int fps;
 };
 
 struct params {
@@ -44,6 +45,6 @@ struct params {
   struct display display;
 };
 
-extern struct params params;
+extern struct params cur_params;
 
 }

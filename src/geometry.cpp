@@ -38,13 +38,13 @@ vec rotate(vec& v, dbl ang, geometry::axis ax) {
   return apply(rot, v);
 }
 
-mat get_rotation_matrix(vec degrees) {
-  dbl cos_x = cos(degrees[X]);
-  dbl sin_x = sin(degrees[X]);
-  dbl cos_y = cos(degrees[Y]);
-  dbl sin_y = sin(degrees[Y]);
-  dbl cos_z = cos(degrees[Z]);
-  dbl sin_z = sin(degrees[Z]);
+mat get_rotation_matrix(vec rads) {
+  dbl cos_x = cos(rads[X]);
+  dbl sin_x = sin(rads[X]);
+  dbl cos_y = cos(rads[Y]);
+  dbl sin_y = sin(rads[Y]);
+  dbl cos_z = cos(rads[Z]);
+  dbl sin_z = sin(rads[Z]);
   mat rot_x = {{ { 1, 0, 0 }, { 0, cos_x, -sin_x }, { 0, sin_x, cos_x } }};
   mat rot_y = {{ { cos_y, 0, sin_y }, { 0, 1, 0 }, { -sin_y, 0, cos_y } }};
   mat rot_z = {{ { cos_z, -sin_z, 0 }, { sin_z, cos_z, 0 }, { 0, 0, 1 } }};

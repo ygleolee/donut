@@ -10,6 +10,9 @@ namespace donut::session {
 const int MAX_BUFFER_SIZE = 20;
 
 extern std::atomic<bool> terminate;
+extern std::atomic<int> advance;
+extern std::atomic<int> compute_idx;
+extern std::atomic<int> output_idx;
 extern std::array<grd, MAX_BUFFER_SIZE> buffer;
 
 void sigint_handler(int);

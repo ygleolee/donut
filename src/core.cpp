@@ -29,16 +29,25 @@ std::string move_cursor(int row, int col) {
 }
 
 void update_screen(grd& canvas, grd& old_canvas) {
+  int n;
+  std::string grayscale;
+
+  static bool init = true;
+  if (init) {
+    std::scoped_lock<std::mutex> lock(parameter::params_mtx);
+    grayscale = parameter::cur_params.display.grayscale;
+    n = grayscale.size();
+  }
+
   int wid = canvas.size();
   int hei = canvas[0].size();
-  int n = parameter::params.display.grayscale.size();
 
   std::string output = "\x1b[H";
 
   for (int j=hei-1; j>=0; --j) {
     for (int i=0; i<wid; ++i) {
-      char cur =     canvas[i][j] < 0 ? ' ' : parameter::params.display.grayscale[(int) (    canvas[i][j] * (n - 1))];
-      char old = old_canvas[i][j] < 0 ? ' ' : parameter::params.display.grayscale[(int) (old_canvas[i][j] * (n - 1))];
+      char cur =     canvas[i][j] < 0 ? ' ' : grayscale[(int) (    canvas[i][j] * (n - 1))];
+      char old = old_canvas[i][j] < 0 ? ' ' : grayscale[(int) (old_canvas[i][j] * (n - 1))];
       if (cur != old) {
         output += move_cursor(hei - j, i + 1) + cur;
         old_canvas[i][j] = cur;
@@ -57,13 +66,13 @@ void draw(grd& canvas, ves& points, ves& normals) {
   dbl char_ratio;
 
   {
-    std::scoped_lock<std::mutex> lock(parameter::params_mtx);
     using namespace parameter;
-    type = params.light.type;
-    light = (type == PARALLEL) ? geometry::neg(params.light.parallel) : params.light.point;
-    z = params.camera.z;
-    range = params.display.range;
-    char_ratio = params.display.char_ratio;
+    std::scoped_lock<std::mutex> lock(params_mtx);
+    type = cur_params.light.type;
+    light = (type == PARALLEL) ? geometry::neg(cur_params.light.parallel) : cur_params.light.point;
+    z = cur_params.camera.z;
+    range = cur_params.display.range;
+    char_ratio = cur_params.display.char_ratio;
   }
 
   int wid = canvas.size();
@@ -75,16 +84,16 @@ void draw(grd& canvas, ves& points, ves& normals) {
 
   for (auto const &[pt, nor] : std::views::zip(points, normals)) {
     dbl scale = z / (z - pt[Z]);
-    int x_canvas = (int) round(scale * pt[X] / range * (wid >> 1) / char_ratio) + (wid >> 1);
-    int y_canvas = (int) round(scale * pt[Y] / range * (hei >> 1)) + (hei >> 1);
+    int x_canvas = (wid >> 1) + (int) round(scale * pt[X] / range * (wid >> 1) / char_ratio);
+    int y_canvas = (hei >> 1) + (int) round(scale * pt[Y] / range * (hei >> 1));
     if (oob(wid, hei, x_canvas, y_canvas) || depth[x_canvas][y_canvas] > pt[Z]) continue;
-    depth[x_canvas][y_canvas] = pt[Z];
+
     vec light_vec = light;
-    if (type == POINT) { // treat 'light' as light source
-      light_vec = geometry::diff(light, pt);
-    }
-    dbl brightness = (geometry::cosang(light_vec, nor) + 1) / 2; 
+    if (type == POINT) light_vec = geometry::diff(light, pt);
+    dbl brightness = (geometry::cosang(light_vec, nor) + 1) / 2;  // [-1, 1] -> [0, 1]
+
     canvas[x_canvas][y_canvas] = brightness;
+    depth[x_canvas][y_canvas] = pt[Z];
   }
 }
 

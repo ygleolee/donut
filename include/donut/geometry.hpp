@@ -19,7 +19,7 @@ const int Z = 2;
 mat matmul(mat& A, mat& B);
 vec apply(mat& A, vec& v);
 vec rotate(vec& v, dbl ang, axis ax);
-mat get_rotation_matrix(vec degrees);
+mat get_rotation_matrix(vec rads);
 vec add(vec& u, vec& v);
 vec diff(vec& u, vec& v);
 vec neg(vec& v);

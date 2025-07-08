@@ -1,6 +1,4 @@
-#include "donut/session.hpp"
-#include "donut/core.hpp"
-#include "donut/shapes.hpp"
+#include "donut/donut.hpp"
 
 #include <iostream>
 #include <thread>
@@ -45,9 +43,33 @@ void test_animate() {
 }
 
 void test_termios() {
+  dbl r1 = 60, r2 = 30;
+  ves points, normals;
+  tie(points, normals) = donut::shapes::donut(r1, r2);
+  
+  std::signal(SIGINT, donut::session::sigint_handler);
   donut::session::terminal_mode_set();
+
+  donut::parameter::cur_params.shape.rps = { 0, 0, 0 };
+
+  // setup buffer
+  int hei, wid;
+  std::tie(hei, wid) = donut::core::get_terminal_size();
+  for (auto& canvas : donut::session::buffer) {
+    canvas.resize(wid);
+    for (auto& row : canvas) {
+      row.resize(hei);
+    }
+  }
+
   std::thread input_thread(donut::session::_input_thread);
+  std::thread output_thread(donut::session::_output_thread);
+  std::thread compute_thread(donut::session::_compute_thread, points, normals);
+
   input_thread.join();
+  output_thread.join();
+  compute_thread.join();
+
   donut::session::terminal_mode_reset();
 }
 
@@ -56,8 +78,7 @@ int main() {
   // test_draw();
 
   // donut::session::entry();
-  test_animate();
+  // test_animate();
 
-  // test_termios();
-
+  test_termios();
 }
