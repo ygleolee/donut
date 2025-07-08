@@ -111,7 +111,7 @@ void _input_thread() {
 void _compute_thread(ves points, ves normals) {
   int wid = buffer[0].size();
   int hei = buffer[0][0].size();
-  grd canvas(wid, std::vector<dbl>(hei, -1));
+  grd canvas(wid, std::vector<char>(hei, -1));
   vec rps;
   dbl fps;
 
@@ -163,8 +163,8 @@ void _compute_thread(ves points, ves normals) {
 void _output_thread() {
   int wid = buffer[0].size();
   int hei = buffer[0][0].size();
-  grd canvas(wid, std::vector<dbl>(hei));
-  grd old_canvas(wid, std::vector<dbl>(hei, -1));
+  grd canvas(wid, std::vector<char>(hei));
+  grd old_canvas(wid, std::vector<char>(hei, -1));
   int fps;
 
   while (!terminate) {

@@ -24,8 +24,8 @@
 
 // TODO: move compute_thread buffer index to (output + 3), i.e. only keep 3 cached frames
 
-// TODO: implement config page
-// show current rps, light src, light vec, grayscale, etc.
+// TODO: command history
+
 
 const int FALLBACK_KEEP = 2;
 
@@ -115,7 +115,9 @@ void handle_user_input(int chars, char buf[3]) {
         break;
       }
       case 'f': {
-        ++session::advance;
+        if (session::advance >= 0) {
+          ++session::advance;
+        }
         break;
       }
       case 'p': {
@@ -127,7 +129,14 @@ void handle_user_input(int chars, char buf[3]) {
         break;
       }
       case 'w': {
-        LOCK(params_mtx);
+        {
+          LOCK(params_mtx);
+          if (cur_params.light.type == PARALLEL) {
+          }
+          else {
+          }
+        }
+        invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
       case 'a': {

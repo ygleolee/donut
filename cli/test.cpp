@@ -50,8 +50,8 @@ void test_termios() {
   std::signal(SIGINT, donut::session::sigint_handler);
   donut::session::terminal_mode_set();
 
-  donut::parameter::cur_params.shape.rps = { 0, 0, 0 };
-  donut::parameter::cur_params.shape.delta = 1.2;
+  donut::parameter::cur_params.shape.rps = { 0.3, 0.3, 0.3 };
+  donut::parameter::cur_params.shape.delta = 0.3;
 
   // setup buffer
   int hei, wid;

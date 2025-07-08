@@ -33,6 +33,7 @@ struct params default_params = {
   },
   .display = {
     .grayscale = "......,,,-~:;=!*#$@",
+    // .grayscale = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,^. ",
     .range = 100.0,
     .char_ratio = 1.75,
     .fps = 30,

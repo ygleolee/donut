@@ -10,8 +10,6 @@
 
 namespace donut::parameter {
 
-extern std::mutex params_mtx;
-
 struct light {
   light_type type;
   vec parallel;
@@ -45,6 +43,7 @@ struct params {
   struct display display;
 };
 
+extern std::mutex params_mtx;
 extern struct params cur_params;
 extern struct params default_params;
 
