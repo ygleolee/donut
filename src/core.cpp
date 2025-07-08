@@ -44,8 +44,8 @@ void update_screen(grd& canvas, grd& old_canvas) {
 
   std::string output = "\x1b[H";
 
-  for (int j=hei-1; j>=0; --j) {
-    for (int i=0; i<wid; ++i) {
+  for (int j = hei - 1; j >= 0; --j) {
+    for (int i = 0; i < wid; ++i) {
       char cur =     canvas[i][j] < 0 ? ' ' : grayscale[(int) (    canvas[i][j] * (n - 1))];
       char old = old_canvas[i][j] < 0 ? ' ' : grayscale[(int) (old_canvas[i][j] * (n - 1))];
       if (cur != old) {
@@ -78,7 +78,7 @@ void draw(grd& canvas, ves& points, ves& normals) {
   int wid = canvas.size();
   int hei = canvas[0].size();
   grd depth(wid, std::vector<dbl>(hei, -1e6));
-  for (int i=0; i<wid; ++i) {
+  for (int i = 0; i < wid; ++i) {
     std::fill(canvas[i].begin(), canvas[i].end(), -1);
   }
 

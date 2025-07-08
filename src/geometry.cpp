@@ -6,17 +6,17 @@ namespace donut::geometry {
 
 mat matmul(mat& A, mat& B) {
   mat ans = geometry::Zero;
-  for (int i=0; i<3; ++i)
-    for (int j=0; j<3; ++j)
-      for (int k=0; k<3; ++k)
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      for (int k = 0; k < 3; ++k)
         ans[i][j] += A[i][k] * B[k][j];
   return ans;
 }
 
 vec apply(mat& A, vec& v) {
   vec ans = geometry::zero;
-  for (int i=0; i<3; ++i)
-    for (int j=0; j<3; ++j)
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
       ans[i] += A[i][j] * v[j];
   return ans;
 }

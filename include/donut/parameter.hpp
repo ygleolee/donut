@@ -46,5 +46,6 @@ struct params {
 };
 
 extern struct params cur_params;
+extern struct params default_params;
 
 }

@@ -5,6 +5,7 @@
 
 // all "shape" functions return (points, normals)
 // TODO: adjust number of points needed based on resolution? (if bottleneck is I/O, we can just calculate a bunch of points)
+// TODO: cone, droplet, pill, ...
 
 
 namespace donut::shapes {
@@ -26,5 +27,4 @@ std::pair<ves, ves> ellipsoid(dbl a, dbl b, dbl c);
 // r1 = carbon radius, r2 = hydrogen radius, r3 = bond radius, l = bond length
 std::pair<ves, ves> methane(dbl r1, dbl r2, dbl r3, dbl l);
 
-// TODO: cone, droplet, pill, ...
 }

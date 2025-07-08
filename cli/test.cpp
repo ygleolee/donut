@@ -51,6 +51,7 @@ void test_termios() {
   donut::session::terminal_mode_set();
 
   donut::parameter::cur_params.shape.rps = { 0, 0, 0 };
+  donut::parameter::cur_params.shape.delta = 1.2;
 
   // setup buffer
   int hei, wid;

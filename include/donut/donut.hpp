@@ -1,5 +1,6 @@
 #pragma once
 
+#include "donut/control.hpp"
 #include "donut/core.hpp"
 #include "donut/geometry.hpp"
 #include "donut/parameter.hpp"

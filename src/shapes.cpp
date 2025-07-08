@@ -5,15 +5,21 @@
 #include <cmath>
 #include <numbers>
 
+// TODO: optimze number of sampled points computed
+
 namespace donut::shapes {
+
+constexpr dbl PI = std::numbers::pi;
+constexpr dbl TAU = 2 * std::numbers::pi;
+constexpr dbl PI_HALF = std::numbers::pi / 2;
  
 std::pair<ves, ves> donut(dbl r1, dbl r2) {
   ves points, normals;
-  dbl delta_phi = 0.01;
-  dbl delta_the = 0.02;
-  for (dbl phi=0; phi<6.28; phi+=delta_phi) {
+  dbl delta_phi = 0.015;
+  dbl delta_the = 0.025;
+  for (dbl phi = 0; phi < TAU; phi += delta_phi) {
     mat rot = geometry::get_rotation_matrix({0, phi, 0});
-    for (dbl the=0; the<6.28; the+=delta_the) {
+    for (dbl the = 0; the < TAU; the += delta_the) {
       dbl ct = cos(the), st = sin(the);
       vec pt = { r1 + r2 * ct, r2 * st, 0 };
       vec nor = { ct, st, 0 };
@@ -26,20 +32,20 @@ std::pair<ves, ves> donut(dbl r1, dbl r2) {
 
 std::pair<ves, ves> mister_donut(dbl r1, dbl r2, int n) {
   ves points, normals;
-  dbl ang = 2 * std::numbers::pi / n;
+  dbl ang = TAU / n;
 
   ves points_sphere, normals_sphere;
   std::tie(points_sphere, normals_sphere) = shapes::ellipsoid(r2, r2, r2);
-  for (auto& pt:points_sphere) { // shift everything by {r1, 0, 0}
+  for (auto& pt : points_sphere) { // shift everything by {r1, 0, 0}
     pt[geometry::X] += r1;
   }
 
-  for (int i=0; i<n; ++i) {
+  for (int i = 0; i < n; ++i) {
     mat rot = geometry::get_rotation_matrix({0, 0, ang * i});
-    for (auto& pt:points_sphere) {
+    for (auto& pt : points_sphere) {
       points.push_back(geometry::apply(rot, pt));
     }
-    for (auto& nor:normals_sphere) {
+    for (auto& nor : normals_sphere) {
       normals.push_back(geometry::apply(rot, nor));
     }
   }
@@ -49,15 +55,15 @@ std::pair<ves, ves> mister_donut(dbl r1, dbl r2, int n) {
 std::pair<ves, ves> circle(dbl r, geometry::axis ax) {
   ves points, normals;
   dbl delta_phi = 0.02;
-  for (dbl phi=0; phi<2*std::numbers::pi; phi+=delta_phi) {
+  for (dbl phi = 0; phi < TAU; phi += delta_phi) {
     dbl co = cos(phi);
     dbl si = sin(phi);
     points.push_back({r*co, r*si, 0});
     normals.push_back({co, si, 0});
   }
   vec degrees = {0, 0, 0};
-  if (ax == geometry::X_AXIS) degrees[geometry::X] = std::numbers::pi / 2;
-  else if (ax == geometry::Y_AXIS) degrees[geometry::Y] = std::numbers::pi / 2;
+  if (ax == geometry::X_AXIS) degrees[geometry::X] = PI_HALF;
+  else if (ax == geometry::Y_AXIS) degrees[geometry::Y] = PI_HALF;
   core::rotate_shape(points, normals, degrees);
   return { points, normals };
 }
@@ -65,20 +71,20 @@ std::pair<ves, ves> circle(dbl r, geometry::axis ax) {
 std::pair<ves, ves> cuboid(dbl w, dbl h, dbl l) {
   ves points, normals;
   dbl inc = 0.5;
-  for (dbl i=-w/2; i<=w/2; i+=inc) {
-    for (dbl j=-h/2; j<=h/2; j+=inc) {
+  for (dbl i = -w/2; i <= w/2; i += inc) {
+    for (dbl j = -h/2; j <= h/2; j += inc) {
       points.push_back({i, j,  l/2}); normals.push_back({0, 0,  1});
       points.push_back({i, j, -l/2}); normals.push_back({0, 0, -1});
     }
   }
-  for (dbl i=-h/2; i<=h/2; i+=inc) {
-    for (dbl j=-l/2; j<=l/2; j+=inc) {
+  for (dbl i = -h/2; i <= h/2; i += inc) {
+    for (dbl j = -l/2; j <= l/2; j += inc) {
       points.push_back({ w/2, i, j}); normals.push_back({ 1, 0, 0});
       points.push_back({-w/2, i, j}); normals.push_back({-1, 0, 0});
     }
   }
-  for (dbl i=-w/2; i<=w/2; i+=inc) {
-    for (dbl j=-l/2; j<=l/2; j+=inc) {
+  for (dbl i = -w/2; i <= w/2; i += inc) {
+    for (dbl j = -l/2; j <= l/2; j += inc) {
       points.push_back({i,  h/2, j}); normals.push_back({0,  1, 0});
       points.push_back({i, -h/2, j}); normals.push_back({0, -1, 0});
     }
@@ -90,9 +96,9 @@ std::pair<ves, ves> ellipsoid(dbl a, dbl b, dbl c) {
   ves points, normals;
   dbl delta_the = 0.02;
   dbl delta_phi = 0.02;
-  for (dbl the=0; the<2*std::numbers::pi; the+=delta_the) {
+  for (dbl the = 0; the < TAU; the += delta_the) {
     dbl ct = cos(the), st = sin(the);
-    for (dbl phi=0; phi<std::numbers::pi; phi+=delta_phi) {
+    for (dbl phi = 0; phi < TAU; phi += delta_phi) {
       dbl cp = cos(phi), sp = sin(phi);
       points.push_back({ct*sp*a, st*sp*b, cp*c});  // standard ellipsoid parameterization
       normals.push_back({ct*sp/a, st*sp/b, cp/c}); // take gradient of the ellipsoid formula
@@ -103,9 +109,9 @@ std::pair<ves, ves> ellipsoid(dbl a, dbl b, dbl c) {
 
 std::pair<ves, ves> methane(dbl r1, dbl r2, dbl r3, dbl l) {
   ves points, normals;
-  dbl ang = 109.5 / 180 * std::numbers::pi; // methane bond angle
+  dbl ang = 109.5 / 180 * PI; // methane bond angle
   mat rot1 = geometry::get_rotation_matrix({0, 0, ang}); // rotate about the z-axis by ang
-  mat rot2 = geometry::get_rotation_matrix({0, 2 * std::numbers::pi / 3, 0}); // rotate about the y-axis by 120 degrees
+  mat rot2 = geometry::get_rotation_matrix({0, TAU / 3, 0}); // rotate about the y-axis by 120 degrees
 
   // carbon atom (at (0, 0, 0) so no shift)
   tie(points, normals) = ellipsoid(r1, r1, r1);
@@ -120,11 +126,11 @@ std::pair<ves, ves> methane(dbl r1, dbl r2, dbl r3, dbl l) {
   ves points_hydrogen, normals_hydrogen;
   std::tie(points_hydrogen, normals_hydrogen) = ellipsoid(r2, r2, r2);
 
-  for (int i=0; i<4; ++i) {
-    for (auto& pt:points_hydrogen) {
+  for (int i = 0; i < 4; ++i) {
+    for (auto& pt : points_hydrogen) {
       points.push_back(geometry::add(pt, hydrogens[i]));
     }
-    for (auto& nor:normals_hydrogen) {
+    for (auto& nor : normals_hydrogen) {
       normals.push_back(nor);
     }
   }
@@ -134,16 +140,16 @@ std::pair<ves, ves> methane(dbl r1, dbl r2, dbl r3, dbl l) {
   ves points_bond, normals_bond;
   std::tie(points_circle, normals_circle) = circle(r3, geometry::Y_AXIS);
   dbl delta_h = 0.5;
-  for (dbl h=0; h<l; h+=delta_h) {
+  for (dbl h = 0; h < l; h += delta_h) {
     vec shift = {0, h, 0};
-    for (auto& pt:points_circle) {
+    for (auto& pt : points_circle) {
       points_bond.push_back(geometry::add(pt, shift));
     }
-    for (auto& nor:normals_circle) {
+    for (auto& nor : normals_circle) {
       normals_bond.push_back(nor);
     }
   }
-  for (auto& pt:points_bond) {
+  for (auto& pt : points_bond) {
     vec p1 = pt;
     vec p2 = geometry::apply(rot1, p1);
     vec p3 = geometry::apply(rot2, p2);
@@ -153,7 +159,7 @@ std::pair<ves, ves> methane(dbl r1, dbl r2, dbl r3, dbl l) {
     points.push_back(p3);
     points.push_back(p4);
   }
-  for (auto& nor:normals_bond) {
+  for (auto& nor : normals_bond) {
     vec n1 = nor;
     vec n2 = geometry::apply(rot1, n1);
     vec n3 = geometry::apply(rot2, n2);

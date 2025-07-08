@@ -28,14 +28,14 @@ struct params default_params = {
     .z = 1200.0,
   },
   .shape = {
-    .rps = { 0.028, 0.044, 0.053 },
+    .rps = { 0.38, 0.64, 0.73 },
     .delta = 0.2,
   },
   .display = {
     .grayscale = "......,,,-~:;=!*#$@",
     .range = 100.0,
     .char_ratio = 1.75,
-    .fps = 40,
+    .fps = 30,
   },
 };
 

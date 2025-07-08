@@ -3,17 +3,26 @@
 #include "donut/types.hpp"
 
 #include <atomic>
+#include <mutex>
 #include <unistd.h>
 
 namespace donut::session {
 
-const int MAX_BUFFER_SIZE = 20;
+const int BUFFER_SIZE = 20;
 
 extern std::atomic<bool> terminate;
 extern std::atomic<int> advance;
-extern std::atomic<int> compute_idx;
-extern std::atomic<int> output_idx;
-extern std::array<grd, MAX_BUFFER_SIZE> buffer;
+
+extern std::array<grd, BUFFER_SIZE> buffer;
+extern std::mutex buffer_mtx;
+extern int buffer_cnt;
+
+extern std::mutex idx_mtx;
+extern uint64_t compute_idx;
+extern uint64_t output_idx;
+
+extern std::mutex hist_mtx;
+extern bool retrieve;
 
 void sigint_handler(int);
 
