@@ -21,7 +21,7 @@ std::mutex buffer_mtx;
 std::array<grd, BUFFER_SIZE> buffer;
 int buffer_cnt = 0;
 
-std::mutex idx_mtx;
+std::mutex idx_mtx; // NOTE: only for compute_idx
 uint64_t output_idx = 0;
 uint64_t compute_idx = 0;
 
@@ -182,7 +182,7 @@ void _output_thread() {
 
     // copy frame from buffer and output to screen
     {
-      LOCK(idx_mtx, buffer_mtx);
+      LOCK(buffer_mtx);
       uint64_t idx = (++output_idx) % BUFFER_SIZE;
       canvas = buffer[idx];
       buffer_cnt -= 1;

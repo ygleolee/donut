@@ -14,10 +14,6 @@
 #define Y 1
 #define Z 2
 
-// TODO: config page, show (decide where to do this, core/control/parameter)
-// show current rps, light src, light vec, grayscale, etc.
-// real fps
-
 namespace donut::core {
 
 std::pair<int, int> get_terminal_size() {
@@ -73,6 +69,18 @@ void draw(grd& canvas, ves& points, ves& normals) {
   static int hei = 0;
   static std::vector<std::vector<dbl>> depth;
 
+  if (init) {
+    using namespace parameter;
+    std::scoped_lock<std::mutex> lock(params_mtx);
+    grayscale = cur_params.display.grayscale;
+    len = grayscale.size();
+    init = false;
+    wid = canvas.size();
+    hei = canvas[0].size();
+    depth.resize(wid);
+    for (auto& row : depth) row.resize(hei);
+  }
+
   {
     using namespace parameter;
     std::scoped_lock<std::mutex> lock(params_mtx);
@@ -81,15 +89,6 @@ void draw(grd& canvas, ves& points, ves& normals) {
     z = cur_params.camera.z;
     range = cur_params.display.range;
     char_ratio = cur_params.display.char_ratio;
-    if (init) {
-      grayscale = cur_params.display.grayscale;
-      len = grayscale.size();
-      init = false;
-      wid = canvas.size();
-      hei = canvas[0].size();
-      depth.resize(wid);
-      for (auto& row : depth) row.resize(hei);
-    }
   }
 
   for (int i = 0; i < wid; ++i) {

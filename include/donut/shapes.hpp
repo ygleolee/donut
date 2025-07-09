@@ -3,11 +3,6 @@
 #include "donut/geometry.hpp"
 #include "donut/types.hpp"
 
-// all "shape" functions return (points, normals)
-// TODO: adjust number of points needed based on resolution? (if bottleneck is I/O, we can just calculate a bunch of points)
-// TODO: cone, droplet, pill, ...
-
-
 namespace donut::shapes {
 // r1 = donut radius, r2 = tube radius
 std::pair<ves, ves> donut(dbl r1, dbl r2);

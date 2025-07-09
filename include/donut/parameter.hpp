@@ -4,10 +4,6 @@
 
 #include <mutex>
 
-// TODO: add randomness option for rps's
-// other desireable controls
-// one-time rotate the donut (apart from periodical rotation)
-
 namespace donut::parameter {
 
 struct light {
@@ -20,7 +16,9 @@ struct light {
 
 struct camera {
   dbl z;
-  // TODO: add x, y, angle?
+  dbl min;
+  dbl max;
+  int granularity;
 };
 
 struct shape {

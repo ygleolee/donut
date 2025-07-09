@@ -19,12 +19,9 @@
 //   TODO: wasdqe: controls light
 //      - par: rotate about each axis
 //      - pnt: move along direction
-//   TODO: hjkl: move camera (h and l effectively rotates the shape)
+//   TODO: jk: move camera (see parameters.cpp for what to implement)
 //   TODO: c: show config
-
-// TODO: move compute_thread buffer index to (output + 3), i.e. only keep 3 cached frames
-
-// TODO: command history
+//   TODO: h: command history
 
 
 const int FALLBACK_KEEP = 2;
@@ -159,20 +156,18 @@ void handle_user_input(int chars, char buf[3]) {
         LOCK(params_mtx);
         break;
       }
-      case 'h': {
-        LOCK(params_mtx);
-        break;
-      }
       case 'j': {
-        LOCK(params_mtx);
+        {
+          LOCK(params_mtx);
+        }
+        invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
       case 'k': {
-        LOCK(params_mtx);
-        break;
-      }
-      case 'l': {
-        LOCK(params_mtx);
+        {
+          LOCK(params_mtx);
+        }
+        invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
     }

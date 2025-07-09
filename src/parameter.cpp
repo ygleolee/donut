@@ -1,15 +1,24 @@
 #include "donut/parameter.hpp"
 
 // Available parameters
-// range: borders of the real plane ([-range, range] x [-range, range])
-// char_ratio: character height/width (TODO: get this from the terminal via env var)
-// viewer: viewer Z value
-// light_src_type: parallel or point
-//   light_parallel: direction of the light (for parallel)
-//   light_point: absolute coordinates of the light (for point)
-// rotation: radian per sec
-// fps: frames per second of animation
-// grayscale: ascii grayscale (TODO: the first half must all be . maybe add this automatically?)
+// display:
+//    range: borders of the real plane ([-range, range] x [-range, range])
+//    char_ratio: character height/width
+//    fps: frames per second of animation
+// camera:
+//    z: camera z-coord
+//    min/max: range the z value can be adjusted in
+//    granularity: how many presses to divide [min, max] into (the spaces will be exponetially decaying)
+//    ...
+// light:
+//    type: parallel / point
+//    parallel: vec
+//    point: vec
+//    ...
+// shape:
+//    rps: radian per sec
+//    delta: num to increase/decrease for each key press
+//    ...
 
 #include <mutex>
 
@@ -25,7 +34,10 @@ struct params default_params = {
     .rps = { 0, 0, 0 },
   },
   .camera = {
-    .z = 1200.0,
+    .z = 600.0,
+    .min = 200,
+    .max = 1000,
+    .granularity = 12,
   },
   .shape = {
     .rps = { 0.38, 0.64, 0.73 },

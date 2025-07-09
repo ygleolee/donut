@@ -5,8 +5,6 @@
 #include <cmath>
 #include <numbers>
 
-// TODO: optimze number of sampled points computed
-
 namespace donut::shapes {
 
 constexpr dbl PI = std::numbers::pi;
