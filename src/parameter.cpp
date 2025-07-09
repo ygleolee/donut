@@ -20,10 +20,9 @@
 //    delta: num to increase/decrease for each key press
 //    ...
 
+#include <algorithm>
 #include <mutex>
 #include <cstdlib>
-
-#include <iostream>
 
 namespace donut::parameter {
 
@@ -40,7 +39,7 @@ const struct params default_params = {
     .min = 200.0,
     .max = 800.0,
     .steps = 12,
-    .locs = std::vector<dbl>(),
+    .locs = vdb(12),
     .idx = 0,
   },
   .shape = {
@@ -62,7 +61,7 @@ void setup_char_ratio() {
   if (val != nullptr) {
     char* endptr = nullptr;
     double ratio = std::strtod(val, &endptr);
-    errno = 0;  // reset errno before call
+    errno = 0; // reset errno before call
     // Error checking
     if (endptr == val || errno == ERANGE || *endptr != '\0') {
       return;
@@ -88,7 +87,7 @@ void setup_camera_movement() {
   for (int i = 1; i < steps; ++i) {
     cam.locs[i] = cam.locs[i-1] + (d * (i - 1) + 1);
   }
-  reverse(cam.locs.begin(), cam.locs.end());
+  std::reverse(cam.locs.begin(), cam.locs.end());
   cam.idx = 0;
 }
 

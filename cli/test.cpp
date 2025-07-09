@@ -44,19 +44,16 @@ void test_animate() {
 
 void test_termios() {
   dbl r1 = 60, r2 = 30;
-  ves points, normals;
-  tie(points, normals) = donut::shapes::donut(r1, r2);
+  // auto [points, normals] = donut::shapes::mister_donut(r1, r2, 8);
+  auto [points, normals] = donut::shapes::donut(r1, r2);
   
   std::signal(SIGINT, donut::session::sigint_handler);
   donut::session::terminal_mode_set();
-
-  donut::parameter::cur_params.shape.delta = 0.3;
   donut::parameter::setup_char_ratio();
   donut::parameter::setup_camera_movement();
 
   // setup buffer
-  int hei, wid;
-  std::tie(hei, wid) = donut::core::get_terminal_size();
+  auto [hei, wid] = donut::core::get_terminal_size();
   for (auto& canvas : donut::session::buffer) {
     canvas.resize(wid);
     for (auto& row : canvas) {

@@ -19,7 +19,7 @@ struct camera {
   dbl min;
   dbl max;
   int steps;
-  std::vector<dbl> locs;
+  vdb locs;
   int idx;
 };
 

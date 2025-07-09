@@ -36,12 +36,15 @@ void update_screen(grd& canvas, grd& old_canvas) {
   static int hei = 0;
 
   if (init) {
-    std::scoped_lock<std::mutex> lock(parameter::params_mtx);
+    LOCK(parameter::params_mtx);
     wid = canvas.size();
     hei = canvas[0].size();
     init = false;
   }
 
+  // std::string output = "";
+  // output.reserve(wid * hei / 20); // NOTE: rough estimate, maybe want to calculate based on rps
+  // output += "\x1b[H";
   std::string output = "\x1b[H";
   for (int i = 0; i < wid; ++i) {
     for (int j = 0; j < hei; ++j) {
@@ -69,23 +72,22 @@ void draw(grd& canvas, ves& points, ves& normals) {
   static int len = 0;
   static int wid = 0;
   static int hei = 0;
-  static std::vector<std::vector<dbl>> depth;
+  static std::vector<vdb> depth;
 
   if (init) {
     using namespace parameter;
-    std::scoped_lock<std::mutex> lock(params_mtx);
+    LOCK(params_mtx);
     grayscale = cur_params.display.grayscale;
     len = grayscale.size();
     init = false;
     wid = canvas.size();
     hei = canvas[0].size();
-    depth.resize(wid);
-    for (auto& row : depth) row.resize(hei);
+    depth = std::vector<vdb>(wid, vdb(hei));
   }
 
   {
     using namespace parameter;
-    std::scoped_lock<std::mutex> lock(params_mtx);
+    LOCK(params_mtx);
     type = cur_params.light.type;
     light = (type == PARALLEL) ? geometry::neg(cur_params.light.parallel) : cur_params.light.point;
     z = cur_params.camera.locs[cur_params.camera.idx];

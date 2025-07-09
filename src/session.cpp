@@ -3,6 +3,7 @@
 #include "donut/core.hpp"
 #include "donut/control.hpp"
 #include "donut/parameter.hpp"
+#include "donut/shapes.hpp"
 
 #include <csignal>
 #include <iostream>
@@ -60,13 +61,12 @@ void sigint_handler(int) {
   terminal_mode_reset();
 }
 
-void entry() {
+void entry() { // specify shape, params (specified in cli or config file)
   std::signal(SIGINT, sigint_handler);
   terminal_mode_set();
 
   // setup buffer
-  int hei, wid;
-  std::tie(hei, wid) = core::get_terminal_size();
+  auto [wid, hei] = core::get_terminal_size();
   for (auto& canvas : buffer) {
     canvas.resize(wid);
     for (auto& row : canvas) {
@@ -74,13 +74,22 @@ void entry() {
     }
   }
 
+  // get params (either default of read from file)
+  // if (config files exists) {
+  // }
+
+  // obtain shape
+  dbl r1 = 60;
+  dbl r2 = 30;
+  auto [points, normals] = shapes::donut(r1, r2);
+
   std::thread input_thread(_input_thread);
   std::thread output_thread(_output_thread);
-  // std::thread compute_thread(_compute_thread);
+  std::thread compute_thread(_compute_thread, points, normals);
 
   input_thread.join();
   output_thread.join();
-  // compute_thread.join();
+  compute_thread.join();
 
   terminal_mode_reset();
 }
