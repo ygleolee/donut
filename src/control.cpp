@@ -159,6 +159,9 @@ void handle_user_input(int chars, char buf[3]) {
       case 'j': {
         {
           LOCK(params_mtx);
+          auto& cam = cur_params.camera;
+          ++cam.idx;
+          if (cam.idx == cam.steps) cam.idx = cam.steps - 1;
         }
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
@@ -166,6 +169,9 @@ void handle_user_input(int chars, char buf[3]) {
       case 'k': {
         {
           LOCK(params_mtx);
+          auto& cam = cur_params.camera;
+          --cam.idx;
+          if (cam.idx == -1) cam.idx = 0;
         }
         invalidate_computed_frames(FALLBACK_KEEP);
         break;

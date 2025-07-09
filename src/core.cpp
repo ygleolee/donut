@@ -9,6 +9,8 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include <iostream>
+
 #define OOB(n, m, i, j) ((i >= n) || (i < 0) || (j >= m) || (j < 0))
 #define X 0
 #define Y 1
@@ -86,7 +88,7 @@ void draw(grd& canvas, ves& points, ves& normals) {
     std::scoped_lock<std::mutex> lock(params_mtx);
     type = cur_params.light.type;
     light = (type == PARALLEL) ? geometry::neg(cur_params.light.parallel) : cur_params.light.point;
-    z = cur_params.camera.z;
+    z = cur_params.camera.locs[cur_params.camera.idx];
     range = cur_params.display.range;
     char_ratio = cur_params.display.char_ratio;
   }

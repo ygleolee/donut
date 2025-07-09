@@ -140,7 +140,7 @@ void _compute_thread(ves points, ves normals) {
     core::draw(canvas, points, normals);
     {
       LOCK(idx_mtx, buffer_mtx);
-      uint64_t idx = (++compute_idx) % BUFFER_SIZE;
+      uint64_t idx = (compute_idx++) % BUFFER_SIZE;
       buffer[idx] = canvas;
       buffer_cnt += 1;
       points_hist[idx] = points;
@@ -183,7 +183,7 @@ void _output_thread() {
     // copy frame from buffer and output to screen
     {
       LOCK(buffer_mtx);
-      uint64_t idx = (++output_idx) % BUFFER_SIZE;
+      uint64_t idx = (output_idx++) % BUFFER_SIZE;
       canvas = buffer[idx];
       buffer_cnt -= 1;
     }

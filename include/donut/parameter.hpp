@@ -3,6 +3,7 @@
 #include "donut/types.hpp"
 
 #include <mutex>
+#include <vector>
 
 namespace donut::parameter {
 
@@ -15,10 +16,11 @@ struct light {
 };
 
 struct camera {
-  dbl z;
   dbl min;
   dbl max;
-  int granularity;
+  int steps;
+  std::vector<dbl> locs;
+  int idx;
 };
 
 struct shape {
@@ -42,7 +44,16 @@ struct params {
 };
 
 extern std::mutex params_mtx;
+
+extern const struct params default_params;
 extern struct params cur_params;
-extern struct params default_params;
+
+// call before read_config
+void setup_char_ratio();
+
+void read_config();
+
+// call after read_config
+void setup_camera_movement();
 
 }
