@@ -1,5 +1,20 @@
 Animates a donut using ascii characters in the terminal haha. Users can control viewer location, lighting, rotation, and others!
 
+## Requirements
+- c++23
+- xmake
+- termios
+- terminal supports ANSI escape codes
+
+## Installation
+- clone the repo
+- `xmake install`
+- done!
+
+## Usage
+
+
+```
                                                            ##############*                                    
                                                   *#####$$$$$$$$$$$$$$$$$$$$$$###*                            
                                              *#####$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$###*                       
@@ -50,4 +65,4 @@ Animates a donut using ascii characters in the terminal haha. Users can control 
                         ...,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,....                                          
                             .....,,,,,,,,,,,,,,,,,,,,,,,,......                                               
                                    .....................                                                      
-                                                                                                              
+```

@@ -31,9 +31,10 @@ std::mutex params_mtx;
 const struct params default_params = {
   .light = {
     .type = PARALLEL,
-    .parallel = { 0, -1, -1 },
+    .parallel = { 1, -4, -4 },
     .point = { 100, 40, 300 },
     .rps = { 0, 0, 0 },
+    .rpp = 0.1,
   },
   .camera = {
     .min = 200.0,

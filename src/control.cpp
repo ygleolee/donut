@@ -1,5 +1,6 @@
 #include "donut/control.hpp"
 
+#include "donut/geometry.hpp"
 #include "donut/parameter.hpp"
 #include "donut/session.hpp"
 #include "donut/types.hpp"
@@ -16,15 +17,15 @@
 //   space: start/pause
 //   f: next frame (only when paused)
 //   p: toggle parallel/point
-//   TODO: wasdqe: controls light
+//   wasdqe: controls light
 //      - par: rotate about each axis
-//      - pnt: move along direction
-//   TODO: jk: move camera (see parameters.cpp for what to implement)
+//      - pnt: rotate about each axis, stays on the same sphere
+//   jk: move camera (see parameters.cpp for what to implement)
 //   TODO: c: show config
 //   TODO: h: command history
 
 
-const int FALLBACK_KEEP = 2;
+const int FALLBACK_KEEP = 4;
 
 namespace donut::control {
 
@@ -47,6 +48,8 @@ void handle_user_input(int chars, char buf[3]) {
           LOCK(params_mtx);
           cur_params = default_params;
         }
+        setup_char_ratio();
+        setup_camera_movement();
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
@@ -128,32 +131,61 @@ void handle_user_input(int chars, char buf[3]) {
       case 'w': {
         {
           LOCK(params_mtx);
-          if (cur_params.light.type == PARALLEL) {
-          }
-          else {
-          }
+          struct parameter::light& light = cur_params.light;
+          if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, light.rpp, geometry::X_AXIS);
+          else light.point = geometry::rotate(light.point, light.rpp, geometry::X_AXIS);
+        }
+        invalidate_computed_frames(FALLBACK_KEEP);
+        break;
+      }
+      case 's': {
+        {
+          LOCK(params_mtx);
+          struct parameter::light& light = cur_params.light;
+          if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, -light.rpp, geometry::X_AXIS);
+          else light.point = geometry::rotate(light.point, -light.rpp, geometry::X_AXIS);
         }
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
       case 'a': {
-        LOCK(params_mtx);
-        break;
-      }
-      case 's': {
-        LOCK(params_mtx);
+        {
+          LOCK(params_mtx);
+          struct parameter::light& light = cur_params.light;
+          if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, light.rpp, geometry::Y_AXIS);
+          else light.point = geometry::rotate(light.point, light.rpp, geometry::Y_AXIS);
+        }
+        invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
       case 'd': {
-        LOCK(params_mtx);
+        {
+          LOCK(params_mtx);
+          struct parameter::light& light = cur_params.light;
+          if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, -light.rpp, geometry::Y_AXIS);
+          else light.point = geometry::rotate(light.point, -light.rpp, geometry::Y_AXIS);
+        }
+        invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
       case 'q': {
-        LOCK(params_mtx);
+        {
+          LOCK(params_mtx);
+          struct parameter::light& light = cur_params.light;
+          if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, light.rpp, geometry::Z_AXIS);
+          else light.point = geometry::rotate(light.point, light.rpp, geometry::Z_AXIS);
+        }
+        invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
       case 'e': {
-        LOCK(params_mtx);
+        {
+          LOCK(params_mtx);
+          struct parameter::light& light = cur_params.light;
+          if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, -light.rpp, geometry::Z_AXIS);
+          else light.point = geometry::rotate(light.point, -light.rpp, geometry::Z_AXIS);
+        }
+        invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
       case 'j': {
@@ -177,14 +209,15 @@ void handle_user_input(int chars, char buf[3]) {
         break;
       }
     }
-  } else if (chars == 3 && buf[0] == '\x1b' && buf[1] == '[') {
-    switch (buf[2]) {
-      case 'A': break;
-      case 'B': break;
-      case 'C': break;
-      case 'D': break;
-    }
   }
+  // else if (chars == 3 && buf[0] == '\x1b' && buf[1] == '[') {
+  //   switch (buf[2]) {
+  //     case 'A': break;
+  //     case 'B': break;
+  //     case 'C': break;
+  //     case 'D': break;
+  //   }
+  // }
 }
 
 }

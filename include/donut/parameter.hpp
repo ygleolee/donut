@@ -12,6 +12,7 @@ struct light {
   vec parallel;
   vec point;
   vec rps;
+  dbl rpp;
   // bool rand;
 };
 

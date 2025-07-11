@@ -8,7 +8,7 @@
 
 namespace donut::session {
 
-const int BUFFER_SIZE = 20;
+const int BUFFER_SIZE = 50;
 
 extern std::atomic<bool> terminate;
 extern std::atomic<int> advance;
