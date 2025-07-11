@@ -4,6 +4,9 @@
 #include <thread>
 #include <csignal>
 
+#include <CLI/CLI.hpp>
+#include <toml++/toml.hpp>
+
 void test_terminal_size() {
   std::pair<int, int> ts = donut::core::get_terminal_size();
   std::cout << ts.first << ' ' << ts.second << std::endl;
@@ -49,8 +52,9 @@ void test_termios() {
   
   std::signal(SIGINT, donut::session::sigint_handler);
   donut::session::terminal_mode_set();
-  donut::parameter::setup_char_ratio();
-  donut::parameter::setup_camera_movement();
+  donut::parameter::setup_char_ratio(donut::parameter::cur_params);
+  donut::parameter::setup_camera_movement(donut::parameter::cur_params);
+  donut::control::setup_default_keymap(donut::control::key_mappings);
 
   // setup buffer
   auto [hei, wid] = donut::core::get_terminal_size();
@@ -72,12 +76,42 @@ void test_termios() {
   donut::session::terminal_mode_reset();
 }
 
-int main() {
+void test_toml() {
+  try {
+    auto config = toml::parse_file("/Users/leo/Desktop/code/projects/donut/tmp/test.toml");
+ 
+    std::cout << "Title: " << *config["title"].value<std::string>() << "\n";
+    std::cout << "Width: " << *config["width"].value<int>() << "\n";
+    std::cout << "Height: " << *config["height"].value<int>() << "\n";
+    std::cout << "Fullscreen: " << (*config["fullscreen"].value<bool>() ? "true" : "false") << "\n";
+ 
+    auto& anim = *config["animation"].as_table();
+    std::cout << "FPS: " << *anim["fps"].value<int>() << "\n";
+    std::cout << "Speed: " << *anim["speed"].value<double>() << "\n";
+ 
+    auto& light = *config["light"].as_table();
+    std::cout << "Light Type: " << *light["type"].value<std::string>() << "\n";
+    std::cout << "Intensity: " << *light["intensity"].value<double>() << "\n";
+  } catch (const toml::parse_error& err) {
+    std::cerr << "Parse error: " << err.description() << "\n  at " << err.source().begin << "\n";
+  }
+}
+
+
+int main(int argc, char** argv) {
   // test_terminal_size();
   // test_draw();
 
   // donut::session::entry();
   // test_animate();
 
+  // CLI::App app{"Donut CLI"};
+  // int level = 0;
+  // app.add_option("-l,--level", level, "Set animation level");
+  // CLI11_PARSE(app, argc, argv);
+  // return 0;
+
+  // test_toml();
+  
   test_termios();
 }

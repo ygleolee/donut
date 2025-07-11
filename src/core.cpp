@@ -9,8 +9,6 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include <iostream>
-
 #define OOB(n, m, i, j) ((i >= n) || (i < 0) || (j >= m) || (j < 0))
 #define X 0
 #define Y 1

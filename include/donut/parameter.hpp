@@ -3,7 +3,6 @@
 #include "donut/types.hpp"
 
 #include <mutex>
-#include <vector>
 
 namespace donut::parameter {
 
@@ -49,12 +48,8 @@ extern std::mutex params_mtx;
 extern const struct params default_params;
 extern struct params cur_params;
 
-// call before read_config
-void setup_char_ratio();
-
+void setup_char_ratio(struct params& params);
+void setup_camera_movement(struct params& params);
 void read_config();
-
-// call after read_config
-void setup_camera_movement();
 
 }

@@ -64,6 +64,10 @@ void sigint_handler(int) {
 void entry() { // specify shape, params (specified in cli or config file)
   std::signal(SIGINT, sigint_handler);
   terminal_mode_set();
+  
+  donut::parameter::setup_char_ratio(donut::parameter::cur_params);
+  donut::parameter::setup_camera_movement(donut::parameter::cur_params);
+  donut::control::setup_default_keymap(donut::control::key_mappings);
 
   // setup buffer
   auto [wid, hei] = core::get_terminal_size();

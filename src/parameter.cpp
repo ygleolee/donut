@@ -1,5 +1,12 @@
 #include "donut/parameter.hpp"
 
+#include <toml++/toml.hpp>
+
+#include <algorithm>
+#include <mutex>
+#include <cstdlib>
+#include <iostream>
+
 // Available parameters
 // display:
 //    range: borders of the real plane ([-range, range] x [-range, range])
@@ -19,10 +26,6 @@
 //    rps: radian per sec
 //    delta: num to increase/decrease for each key press
 //    ...
-
-#include <algorithm>
-#include <mutex>
-#include <cstdlib>
 
 namespace donut::parameter {
 
@@ -57,7 +60,7 @@ const struct params default_params = {
 
 struct params cur_params = default_params;
 
-void setup_char_ratio() {
+void setup_char_ratio(struct params& params) {
   const char* val = std::getenv("CHAR_RATIO");
   if (val != nullptr) {
     char* endptr = nullptr;
@@ -67,15 +70,13 @@ void setup_char_ratio() {
     if (endptr == val || errno == ERANGE || *endptr != '\0') {
       return;
     }
-    LOCK(params_mtx);
-    cur_params.display.char_ratio = ratio;
+    params.display.char_ratio = ratio;
   }
 }
 
 // [min, min + 1, min + (1 + d), min + (1 + 2d), ..., max]
-void setup_camera_movement() {
-  LOCK(params_mtx);
-  struct camera& cam = cur_params.camera;
+void setup_camera_movement(struct params& params) {
+  struct camera& cam = params.camera;
   if (cam.max - cam.min < cam.steps || cam.steps <= 2) {
     cam = default_params.camera;
   }
@@ -90,6 +91,18 @@ void setup_camera_movement() {
   }
   std::reverse(cam.locs.begin(), cam.locs.end());
   cam.idx = 0;
+}
+
+void read_config(struct params& params, std::string filename) {
+  try {
+    // shape params
+    auto config = toml::parse_file(filename);
+
+    // key mappings
+  } catch (const toml::parse_error& err) {
+    std::cerr << "Error parsing configuration file " << filename << ": " << err.description() << "\n  at " << err.source().begin << "\n";
+    return;
+  }
 }
 
 }
