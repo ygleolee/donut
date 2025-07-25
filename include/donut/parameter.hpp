@@ -6,7 +6,7 @@
 
 namespace donut::parameter {
 
-struct light {
+using params_light_t = struct light {
   light_type type;
   vec parallel;
   vec point;
@@ -14,7 +14,7 @@ struct light {
   dbl rpp;
 };
 
-struct camera {
+using params_camera_t = struct camera {
   dbl min;
   dbl max;
   int steps;
@@ -22,23 +22,23 @@ struct camera {
   int idx;
 };
 
-struct shape {
+using params_shape_t = struct shape {
   vec rps;
   dbl delta; // change with one press
 };
 
-struct display {
+using params_display_t = struct display {
   std::string grayscale;
   dbl range;
   dbl char_ratio;
   int fps;
 };
 
-struct params {
-  struct light light;
-  struct camera camera;
-  struct shape shape;
-  struct display display;
+using params_t = struct params {
+  params_light_t light;
+  params_camera_t camera;
+  params_shape_t shape;
+  params_display_t display;
 };
 
 extern std::mutex params_mtx;

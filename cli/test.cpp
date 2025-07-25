@@ -56,7 +56,6 @@ void test_termios() {
   session::terminal_mode_set();
   parameter::try_setup_char_ratio(parameter::cur_params);
   parameter::setup_camera_movement(parameter::cur_params);
-  control::setup_default_keymap(control::key_mappings);
 
   // setup buffer
   auto [hei, wid] = core::get_terminal_size();

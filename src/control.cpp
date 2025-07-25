@@ -29,31 +29,80 @@ constexpr int FALLBACK_KEEP = 5;
 
 namespace donut::control {
 
-std::unordered_map<char, int> key_mappings;
+const std::unordered_map<std::string, operations> operations_map = {
+  { "RESET_TO_DEFAULT", RESET_TO_DEFAULT },
+  { "ZERO_ROTATION", ZERO_ROTATION },
+  { "INC_SHAPE_ROT_X", INC_SHAPE_ROT_X },
+  { "DEC_SHAPE_ROT_X", DEC_SHAPE_ROT_X },
+  { "INC_SHAPE_ROT_Y", INC_SHAPE_ROT_Y },
+  { "DEC_SHAPE_ROT_Y", DEC_SHAPE_ROT_Y },
+  { "INC_SHAPE_ROT_Z", INC_SHAPE_ROT_Z },
+  { "DEC_SHAPE_ROT_Z", DEC_SHAPE_ROT_Z },
+  { "INC_LIGHT_ROT_X", INC_LIGHT_ROT_X },
+  { "DEC_LIGHT_ROT_X", DEC_LIGHT_ROT_X },
+  { "INC_LIGHT_ROT_Y", INC_LIGHT_ROT_Y },
+  { "DEC_LIGHT_ROT_Y", DEC_LIGHT_ROT_Y },
+  { "INC_LIGHT_ROT_Z", INC_LIGHT_ROT_Z },
+  { "DEC_LIGHT_ROT_Z", DEC_LIGHT_ROT_Z },
+  { "LIGHT_TOGGLE_TYPE", LIGHT_TOGGLE_TYPE },
+  { "START_PAUSE", START_PAUSE },
+  { "NEXT_FRAME", NEXT_FRAME },
+  { "CAMERA_FORWARD", CAMERA_FORWARD },
+  { "CAMERA_BACKWARD", CAMERA_BACKWARD },
+  { "SHOW_CONFIG", SHOW_CONFIG },
+  { "COMMAND_HISTORY", COMMAND_HISTORY },
+  { "EXPORT_CONFIG", EXPORT_CONFIG },
+};
 
-void setup_default_keymap(std::unordered_map<char, int>& keymap) {
-  keymap['r'] = RESET                ;
-  keymap['0'] = ZERO_ROTATION        ;
-  keymap['x'] = INCREASE_SHAPE_ROT_X ;
-  keymap['X'] = DECREASE_SHAPE_ROT_X ;
-  keymap['y'] = INCREASE_SHAPE_ROT_Y ;
-  keymap['Y'] = DECREASE_SHAPE_ROT_Y ;
-  keymap['z'] = INCREASE_SHAPE_ROT_Z ;
-  keymap['Z'] = DECREASE_SHAPE_ROT_Z ;
-  keymap['w'] = INCREASE_LIGHT_ROT_X ;
-  keymap['s'] = DECREASE_LIGHT_ROT_X ;
-  keymap['a'] = INCREASE_LIGHT_ROT_Y ;
-  keymap['d'] = DECREASE_LIGHT_ROT_Y ;
-  keymap['q'] = INCREASE_LIGHT_ROT_Z ;
-  keymap['e'] = DECREASE_LIGHT_ROT_Z ;
-  keymap['p'] = LIGHT_TOGGLE_TYPE    ;
-  keymap[' '] = START_PAUSE          ;
-  keymap['f'] = NEXT_FRAME           ;
-  keymap['j'] = CAMERA_FORWARD       ;
-  keymap['k'] = CAMERA_BACKWARD      ;
-  keymap['c'] = SHOW_CONFIG          ;
-  keymap['h'] = COMMAND_HISTORY      ;
-}
+const std::unordered_map<control::operations, std::string> reverse_operations_map = {
+  { RESET_TO_DEFAULT, "RESET_TO_DEFAULT" },
+  { ZERO_ROTATION, "ZERO_ROTATION" },
+  { INC_SHAPE_ROT_X, "INC_SHAPE_ROT_X" },
+  { DEC_SHAPE_ROT_X, "DEC_SHAPE_ROT_X" },
+  { INC_SHAPE_ROT_Y, "INC_SHAPE_ROT_Y" },
+  { DEC_SHAPE_ROT_Y, "DEC_SHAPE_ROT_Y" },
+  { INC_SHAPE_ROT_Z, "INC_SHAPE_ROT_Z" },
+  { DEC_SHAPE_ROT_Z, "DEC_SHAPE_ROT_Z" },
+  { INC_LIGHT_ROT_X, "INC_LIGHT_ROT_X" },
+  { DEC_LIGHT_ROT_X, "DEC_LIGHT_ROT_X" },
+  { INC_LIGHT_ROT_Y, "INC_LIGHT_ROT_Y" },
+  { DEC_LIGHT_ROT_Y, "DEC_LIGHT_ROT_Y" },
+  { INC_LIGHT_ROT_Z, "INC_LIGHT_ROT_Z" },
+  { DEC_LIGHT_ROT_Z, "DEC_LIGHT_ROT_Z" },
+  { LIGHT_TOGGLE_TYPE, "LIGHT_TOGGLE_TYPE" },
+  { START_PAUSE, "START_PAUSE" },
+  { NEXT_FRAME, "NEXT_FRAME" },
+  { CAMERA_FORWARD, "CAMERA_FORWARD" },
+  { CAMERA_BACKWARD, "CAMERA_BACKWARD" },
+  { SHOW_CONFIG, "SHOW_CONFIG" },
+  { COMMAND_HISTORY, "COMMAND_HISTORY" },
+  { EXPORT_CONFIG, "EXPORT_CONFIG" },
+};
+
+std::unordered_map<char, operations> key_mappings = {
+  { 'r', RESET_TO_DEFAULT },
+  { '0', ZERO_ROTATION    },
+  { 'x', INC_SHAPE_ROT_X  },
+  { 'X', DEC_SHAPE_ROT_X  },
+  { 'y', INC_SHAPE_ROT_Y  },
+  { 'Y', DEC_SHAPE_ROT_Y  },
+  { 'z', INC_SHAPE_ROT_Z  },
+  { 'Z', DEC_SHAPE_ROT_Z  },
+  { 'w', INC_LIGHT_ROT_X  },
+  { 's', DEC_LIGHT_ROT_X  },
+  { 'a', INC_LIGHT_ROT_Y  },
+  { 'd', DEC_LIGHT_ROT_Y  },
+  { 'q', INC_LIGHT_ROT_Z  },
+  { 'e', DEC_LIGHT_ROT_Z  },
+  { 'p', LIGHT_TOGGLE_TYPE},
+  { ' ', START_PAUSE      },
+  { 'f', NEXT_FRAME       },
+  { 'j', CAMERA_FORWARD   },
+  { 'k', CAMERA_BACKWARD  },
+  { 'c', SHOW_CONFIG      },
+  { 'h', COMMAND_HISTORY  },
+  { 'E', EXPORT_CONFIG    },
+};
 
 void invalidate_computed_frames(int keep) {
   using namespace session;
@@ -69,7 +118,7 @@ void handle_user_input(int chars, char buf[3]) {
   using namespace parameter;
   if (chars == 1) {
     switch (key_mappings[buf[0]]) {
-      case RESET: {
+      case RESET_TO_DEFAULT: {
         {
           LOCK(params_mtx);
           cur_params = default_params;
@@ -87,7 +136,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case INCREASE_SHAPE_ROT_X: {
+      case INC_SHAPE_ROT_X: {
         {
           LOCK(params_mtx);
           cur_params.shape.rps[X] += cur_params.shape.delta;
@@ -95,7 +144,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case DECREASE_SHAPE_ROT_X: {
+      case DEC_SHAPE_ROT_X: {
         {
           LOCK(params_mtx);
           cur_params.shape.rps[X] -= cur_params.shape.delta;
@@ -103,7 +152,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case INCREASE_SHAPE_ROT_Y: {
+      case INC_SHAPE_ROT_Y: {
         {
           LOCK(params_mtx);
           cur_params.shape.rps[Y] += cur_params.shape.delta;
@@ -111,7 +160,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case DECREASE_SHAPE_ROT_Y: {
+      case DEC_SHAPE_ROT_Y: {
         {
           LOCK(params_mtx);
           cur_params.shape.rps[Y] -= cur_params.shape.delta;
@@ -119,7 +168,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case INCREASE_SHAPE_ROT_Z: {
+      case INC_SHAPE_ROT_Z: {
         {
           LOCK(params_mtx);
           cur_params.shape.rps[Z] += cur_params.shape.delta;
@@ -127,7 +176,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case DECREASE_SHAPE_ROT_Z: {
+      case DEC_SHAPE_ROT_Z: {
         {
           LOCK(params_mtx);
           cur_params.shape.rps[Z] -= cur_params.shape.delta;
@@ -154,7 +203,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case INCREASE_LIGHT_ROT_X: {
+      case INC_LIGHT_ROT_X: {
         {
           LOCK(params_mtx);
           struct parameter::light& light = cur_params.light;
@@ -164,7 +213,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case DECREASE_LIGHT_ROT_X: {
+      case DEC_LIGHT_ROT_X: {
         {
           LOCK(params_mtx);
           struct parameter::light& light = cur_params.light;
@@ -174,7 +223,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case INCREASE_LIGHT_ROT_Y: {
+      case INC_LIGHT_ROT_Y: {
         {
           LOCK(params_mtx);
           struct parameter::light& light = cur_params.light;
@@ -184,7 +233,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case DECREASE_LIGHT_ROT_Y: {
+      case DEC_LIGHT_ROT_Y: {
         {
           LOCK(params_mtx);
           struct parameter::light& light = cur_params.light;
@@ -194,7 +243,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case INCREASE_LIGHT_ROT_Z: {
+      case INC_LIGHT_ROT_Z: {
         {
           LOCK(params_mtx);
           struct parameter::light& light = cur_params.light;
@@ -204,7 +253,7 @@ void handle_user_input(int chars, char buf[3]) {
         invalidate_computed_frames(FALLBACK_KEEP);
         break;
       }
-      case DECREASE_LIGHT_ROT_Z: {
+      case DEC_LIGHT_ROT_Z: {
         {
           LOCK(params_mtx);
           struct parameter::light& light = cur_params.light;
@@ -232,6 +281,18 @@ void handle_user_input(int chars, char buf[3]) {
           if (cam.idx == -1) cam.idx = 0;
         }
         invalidate_computed_frames(FALLBACK_KEEP);
+        break;
+      }
+      case SHOW_CONFIG: {
+        // TODO:
+        break;
+      }
+      case COMMAND_HISTORY: {
+        // TODO:
+        break;
+      }
+      case EXPORT_CONFIG: {
+        // TODO:clear screen, ask for filename, and write to file
         break;
       }
     }
