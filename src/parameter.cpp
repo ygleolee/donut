@@ -60,7 +60,7 @@ const struct params default_params = {
 
 struct params cur_params = default_params;
 
-void setup_char_ratio(struct params& params) {
+void try_setup_char_ratio(struct params& params) {
   const char* val = std::getenv("CHAR_RATIO");
   if (val != nullptr) {
     char* endptr = nullptr;

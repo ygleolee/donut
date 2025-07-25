@@ -4,7 +4,7 @@ Animates a donut using ascii characters in the terminal haha. Users can control 
 - c++23
 - xmake
 - termios
-- terminal supports ANSI escape codes
+- terminal emulator must support ANSI escape codes
 
 ## Installation
 - clone the repo

@@ -58,16 +58,15 @@ void sigint_handler(int) {
   terminate = true;
   cv_compute.notify_all();
   cv_output.notify_all();
-  terminal_mode_reset();
 }
 
 void entry() { // specify shape, params (specified in cli or config file)
   std::signal(SIGINT, sigint_handler);
   terminal_mode_set();
   
-  donut::parameter::setup_char_ratio(donut::parameter::cur_params);
-  donut::parameter::setup_camera_movement(donut::parameter::cur_params);
-  donut::control::setup_default_keymap(donut::control::key_mappings);
+  parameter::try_setup_char_ratio(parameter::cur_params);
+  parameter::setup_camera_movement(parameter::cur_params);
+  control::setup_default_keymap(control::key_mappings);
 
   // setup buffer
   auto [wid, hei] = core::get_terminal_size();
@@ -94,6 +93,7 @@ void entry() { // specify shape, params (specified in cli or config file)
   input_thread.join();
   output_thread.join();
   compute_thread.join();
+
 
   terminal_mode_reset();
 }

@@ -25,7 +25,7 @@
 //   TODO: h: command history
 
 
-const int FALLBACK_KEEP = 4;
+constexpr int FALLBACK_KEEP = 5;
 
 namespace donut::control {
 
@@ -42,7 +42,7 @@ void setup_default_keymap(std::unordered_map<char, int>& keymap) {
   keymap['Z'] = DECREASE_SHAPE_ROT_Z ;
   keymap['w'] = INCREASE_LIGHT_ROT_X ;
   keymap['s'] = DECREASE_LIGHT_ROT_X ;
-  keymap['s'] = INCREASE_LIGHT_ROT_Y ;
+  keymap['a'] = INCREASE_LIGHT_ROT_Y ;
   keymap['d'] = DECREASE_LIGHT_ROT_Y ;
   keymap['q'] = INCREASE_LIGHT_ROT_Z ;
   keymap['e'] = DECREASE_LIGHT_ROT_Z ;
@@ -73,7 +73,7 @@ void handle_user_input(int chars, char buf[3]) {
         {
           LOCK(params_mtx);
           cur_params = default_params;
-          setup_char_ratio(cur_params);
+          try_setup_char_ratio(cur_params);
           setup_camera_movement(cur_params);
         }
         invalidate_computed_frames(FALLBACK_KEEP);
@@ -236,14 +236,6 @@ void handle_user_input(int chars, char buf[3]) {
       }
     }
   }
-  // else if (chars == 3 && buf[0] == '\x1b' && buf[1] == '[') {
-  //   switch (buf[2]) {
-  //     case 'A': break;
-  //     case 'B': break;
-  //     case 'C': break;
-  //     case 'D': break;
-  //   }
-  // }
 }
 
 }

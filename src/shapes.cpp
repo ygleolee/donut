@@ -11,7 +11,7 @@ using namespace geometry;
 
 constexpr dbl PI = std::numbers::pi;
 constexpr dbl TAU = 2 * PI;
-constexpr dbl PIH = PI / 2;
+constexpr dbl PIHALF = PI / 2;
  
 shape_data donut(dbl r1, dbl r2) {
   dbl delta_phi = 0.01;
@@ -66,8 +66,8 @@ shape_data circle(dbl r, axis ax) {
     normals.push_back({co, si, 0});
   }
   vec degrees = {0, 0, 0};
-  if (ax == X_AXIS) degrees[X] = PIH;
-  else if (ax == Y_AXIS) degrees[Y] = PIH;
+  if (ax == X_AXIS) degrees[X] = PIHALF;
+  else if (ax == Y_AXIS) degrees[Y] = PIHALF;
   core::rotate_shape(points, normals, degrees);
   return { points, normals };
 }

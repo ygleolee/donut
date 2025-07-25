@@ -11,7 +11,7 @@ shape_data donut(dbl r1, dbl r2);
 shape_data mister_donut(dbl r1, dbl r2, int n);
 
 // r = radius, if ax==X, circle will be on YZ-plane
-shape_data circle(dbl r, donut::geometry::axis ax);
+shape_data circle(dbl r, geometry::axis ax);
 
 // width, height, length
 shape_data cuboid(dbl w, dbl h, dbl l);
