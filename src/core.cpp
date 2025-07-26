@@ -35,7 +35,6 @@ void update_screen(grd& canvas, grd& old_canvas) {
   static int hei = 0;
 
   if (init) {
-    COND_LOCK(session::is_interactive, parameter::params_mtx);
     wid = canvas.size();
     hei = canvas[0].size();
     init = false;
@@ -73,10 +72,9 @@ void draw(grd& canvas, ves& points, ves& normals) {
 
   if (init) {
     using namespace parameter;
-    COND_LOCK(session::is_interactive, parameter::params_mtx);
-    range = cur_params.display.range;
-    char_ratio = cur_params.display.char_ratio;
-    grayscale = cur_params.display.grayscale;
+    range = immutable_params.display.range;
+    char_ratio = immutable_params.display.char_ratio;
+    grayscale = immutable_params.display.grayscale;
     len = grayscale.size();
     init = false;
     wid = canvas.size();
@@ -87,9 +85,9 @@ void draw(grd& canvas, ves& points, ves& normals) {
   {
     using namespace parameter;
     COND_LOCK(session::is_interactive, parameter::params_mtx);
-    type = cur_params.light.type;
-    light = (type == PARALLEL) ? geometry::neg(cur_params.light.parallel) : cur_params.light.point;
-    z = cur_params.camera.locs[cur_params.camera.idx];
+    type = mutable_params.light.type;
+    light = (type == PARALLEL) ? geometry::neg(mutable_params.light.parallel) : mutable_params.light.point;
+    z = mutable_params.camera.locs[mutable_params.camera.idx];
   }
 
   for (int i = 0; i < wid; ++i) {

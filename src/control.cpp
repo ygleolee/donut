@@ -26,8 +26,6 @@
 //   TODO: E: export config
 
 
-constexpr int FALLBACK_KEEP = 5;
-
 namespace donut::control {
 
 const std::unordered_map<std::string, operations> operations_map = {
@@ -117,170 +115,170 @@ void invalidate_computed_frames(int keep) {
 
 void handle_user_input(char key) {
   using namespace parameter;
+  using namespace session;
   switch (keymap[key]) {
     case RESET_TO_DEFAULT: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        cur_params = default_params;
-        try_setup_char_ratio(cur_params);
-        setup_camera_movement(cur_params);
+        COND_LOCK(is_interactive, params_mtx);
+        mutable_params = mutable_params_default;
+        setup_camera_movement(mutable_params.camera);
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case ZERO_ROTATION: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        cur_params.shape.rps = { 0, 0, 0 };
+        COND_LOCK(is_interactive, params_mtx);
+        mutable_params.shape.rps = { 0, 0, 0 };
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case INC_SHAPE_ROT_X: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        cur_params.shape.rps[X] += cur_params.shape.delta;
+        COND_LOCK(is_interactive, params_mtx);
+        mutable_params.shape.rps[X] += mutable_params.shape.delta;
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case DEC_SHAPE_ROT_X: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        cur_params.shape.rps[X] -= cur_params.shape.delta;
+        COND_LOCK(is_interactive, params_mtx);
+        mutable_params.shape.rps[X] -= mutable_params.shape.delta;
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case INC_SHAPE_ROT_Y: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        cur_params.shape.rps[Y] += cur_params.shape.delta;
+        COND_LOCK(is_interactive, params_mtx);
+        mutable_params.shape.rps[Y] += mutable_params.shape.delta;
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case DEC_SHAPE_ROT_Y: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        cur_params.shape.rps[Y] -= cur_params.shape.delta;
+        COND_LOCK(is_interactive, params_mtx);
+        mutable_params.shape.rps[Y] -= mutable_params.shape.delta;
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case INC_SHAPE_ROT_Z: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        cur_params.shape.rps[Z] += cur_params.shape.delta;
+        COND_LOCK(is_interactive, params_mtx);
+        mutable_params.shape.rps[Z] += mutable_params.shape.delta;
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case DEC_SHAPE_ROT_Z: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        cur_params.shape.rps[Z] -= cur_params.shape.delta;
+        COND_LOCK(is_interactive, params_mtx);
+        mutable_params.shape.rps[Z] -= mutable_params.shape.delta;
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case START_PAUSE: {
-      if (session::advance == 0) session::advance = -1;
-      else session::advance = 0;
+      if (advance == 0) advance = -1;
+      else advance = 0;
       break;
     }
     case NEXT_FRAME: {
-      if (session::advance >= 0) {
-        ++session::advance;
+      if (advance >= 0) {
+        ++advance;
       }
       break;
     }
     case LIGHT_TOGGLE_TYPE: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        cur_params.light.type = (cur_params.light.type == PARALLEL) ? POINT : PARALLEL;
+        COND_LOCK(is_interactive, params_mtx);
+        mutable_params.light.type = (mutable_params.light.type == PARALLEL) ? POINT : PARALLEL;
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case INC_LIGHT_ROT_X: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        light_params_t& light = cur_params.light;
+        COND_LOCK(is_interactive, params_mtx);
+        light_params_t& light = mutable_params.light;
         if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, light.rpp, geometry::X_AXIS);
         else light.point = geometry::rotate(light.point, light.rpp, geometry::X_AXIS);
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case DEC_LIGHT_ROT_X: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        light_params_t& light = cur_params.light;
+        COND_LOCK(is_interactive, params_mtx);
+        light_params_t& light = mutable_params.light;
         if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, -light.rpp, geometry::X_AXIS);
         else light.point = geometry::rotate(light.point, -light.rpp, geometry::X_AXIS);
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case INC_LIGHT_ROT_Y: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        light_params_t& light = cur_params.light;
+        COND_LOCK(is_interactive, params_mtx);
+        light_params_t& light = mutable_params.light;
         if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, light.rpp, geometry::Y_AXIS);
         else light.point = geometry::rotate(light.point, light.rpp, geometry::Y_AXIS);
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case DEC_LIGHT_ROT_Y: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        light_params_t& light = cur_params.light;
+        COND_LOCK(is_interactive, params_mtx);
+        light_params_t& light = mutable_params.light;
         if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, -light.rpp, geometry::Y_AXIS);
         else light.point = geometry::rotate(light.point, -light.rpp, geometry::Y_AXIS);
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case INC_LIGHT_ROT_Z: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        light_params_t& light = cur_params.light;
+        COND_LOCK(is_interactive, params_mtx);
+        light_params_t& light = mutable_params.light;
         if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, light.rpp, geometry::Z_AXIS);
         else light.point = geometry::rotate(light.point, light.rpp, geometry::Z_AXIS);
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case DEC_LIGHT_ROT_Z: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        light_params_t& light = cur_params.light;
+        COND_LOCK(is_interactive, params_mtx);
+        light_params_t& light = mutable_params.light;
         if (light.type == PARALLEL) light.parallel = geometry::rotate(light.parallel, -light.rpp, geometry::Z_AXIS);
         else light.point = geometry::rotate(light.point, -light.rpp, geometry::Z_AXIS);
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case CAMERA_FORWARD: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        auto& cam = cur_params.camera;
+        COND_LOCK(is_interactive, params_mtx);
+        auto& cam = mutable_params.camera;
         ++cam.idx;
         if (cam.idx == cam.steps) cam.idx = cam.steps - 1;
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case CAMERA_BACKWARD: {
       {
-        COND_LOCK(session::is_interactive, parameter::params_mtx);
-        auto& cam = cur_params.camera;
+        COND_LOCK(is_interactive, params_mtx);
+        auto& cam = mutable_params.camera;
         --cam.idx;
         if (cam.idx == -1) cam.idx = 0;
       }
-      invalidate_computed_frames(FALLBACK_KEEP);
+      invalidate_computed_frames(immutable_params.animation.fallback_keep);
       break;
     }
     case SHOW_CONFIG: {

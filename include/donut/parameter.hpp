@@ -34,7 +34,6 @@ using display_params_t = struct {
   int fps;
 };
 
-// TODO: add these to config reading & handling
 using animation_params_t = struct {
   int buffer_size;
   int fallback_keep;
@@ -43,20 +42,28 @@ using control_params_t = struct {
   int debounce;
 };
 
-using params_t = struct {
+using mutable_params_t = struct {
   light_params_t light;
   camera_params_t camera;
   shape_params_t shape;
-  display_params_t display;
 };
+
+using immutable_params_t = struct {
+  display_params_t display;
+  animation_params_t animation;
+  control_params_t control;
+};
+
+
+extern const mutable_params_t mutable_params_default;
+extern const immutable_params_t immutable_params_default;
+
+extern mutable_params_t mutable_params;
+extern immutable_params_t immutable_params;
 
 extern std::mutex params_mtx;
 
-extern const params_t default_params;
-extern params_t cur_params;
-
-void try_setup_char_ratio(params_t& params);
-void setup_camera_movement(params_t& params);
-void read_config();
+void try_setup_char_ratio(display_params_t& params);
+void setup_camera_movement(camera_params_t& params);
 
 }

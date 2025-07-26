@@ -8,12 +8,10 @@
 
 namespace donut::session {
 
-constexpr int BUFFER_SIZE = 50;
-
 extern std::atomic<bool> terminate;
 extern std::atomic<int> advance;
 
-extern std::array<grd, BUFFER_SIZE> buffer;
+extern std::vector<grd> buffer;
 extern std::mutex buffer_mtx;
 extern int buffer_cnt;
 
@@ -21,6 +19,8 @@ extern std::mutex idx_mtx;
 extern uint64_t compute_idx;
 extern uint64_t output_idx;
 
+extern std::vector<ves> points_hist;
+extern std::vector<ves> normals_hist;
 extern std::mutex hist_mtx;
 extern bool retrieve;
 

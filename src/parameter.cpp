@@ -34,7 +34,7 @@ namespace donut::parameter {
 
 std::mutex params_mtx;
 
-const params_t default_params = {
+const mutable_params_t mutable_params_default = {
   .light = {
     .type = PARALLEL,
     .parallel = { 1, -4, -4 },
@@ -53,17 +53,28 @@ const params_t default_params = {
     .rps = { 0.98, 0.64, 0.73 },
     .delta = 0.2,
   },
+};
+
+const immutable_params_t immutable_params_default = {
   .display = {
     .grayscale = ".......,,,--~~;;==**#$@ ",
     .range = 100.0,
     .char_ratio = 1.71,
     .fps = 30,
   },
+  .animation = {
+    .buffer_size = 50,
+    .fallback_keep = 5,
+  },
+  .control = {
+    .debounce = 50,
+  },
 };
 
-params_t cur_params = default_params;
+mutable_params_t mutable_params = mutable_params_default;
+immutable_params_t immutable_params = immutable_params_default;
 
-void try_setup_char_ratio(params_t& params) {
+void try_setup_char_ratio(display_params_t& display) {
   const char* val = std::getenv("CHAR_RATIO");
   if (val != nullptr) {
     char* endptr = nullptr;
@@ -72,15 +83,14 @@ void try_setup_char_ratio(params_t& params) {
     if (endptr == val || errno == ERANGE || *endptr != '\0') {
       return;
     }
-    params.display.char_ratio = ratio;
+    display.char_ratio = ratio;
   }
 }
 
 // [min, min + 1, min + (1 + d), min + (1 + 2d), ..., max]
-void setup_camera_movement(params_t& params) {
-  auto& cam = params.camera;
+void setup_camera_movement(camera_params_t& cam) {
   if (cam.max - cam.min < cam.steps || cam.steps <= 2) {
-    cam = default_params.camera;
+    cam = mutable_params_default.camera;
   }
   dbl min = cam.min;
   dbl max = cam.max;
@@ -93,18 +103,6 @@ void setup_camera_movement(params_t& params) {
   }
   std::reverse(cam.locs.begin(), cam.locs.end());
   cam.idx = 0;
-}
-
-void read_config(params_t& params, std::string filename) {
-  try {
-    // shape params
-    auto config = toml::parse_file(filename);
-
-    // key mappings
-  } catch (const toml::parse_error& err) {
-    std::cerr << "Error parsing configuration file " << filename << ": " << err.description() << "\n  at " << err.source().begin << "\n";
-    return;
-  }
 }
 
 }

@@ -13,13 +13,11 @@
 
 namespace donut::session {
 
-constexpr int DEBOUNCE_MS = 50;
-
 std::atomic<bool> terminate(false);
 std::atomic<int> advance(-1); // -1: keep going, >=0: play that many frames and stop
 
 std::mutex buffer_mtx;
-std::array<grd, BUFFER_SIZE> buffer;
+std::vector<grd> buffer;
 int buffer_cnt = 0;
 
 std::mutex idx_mtx; // NOTE: only for compute_idx
@@ -27,8 +25,8 @@ uint64_t output_idx = 0;
 uint64_t compute_idx = 0;
 
 std::mutex hist_mtx;
-std::array<ves, BUFFER_SIZE> points_hist;
-std::array<ves, BUFFER_SIZE> normals_hist;
+std::vector<ves> points_hist;
+std::vector<ves> normals_hist;
 bool retrieve = false;
 
 std::condition_variable cv_compute;
@@ -66,8 +64,8 @@ void entry() { // specify shape, params (specified in cli or config file)
   std::signal(SIGINT, sigint_handler);
   terminal_mode_set();
   
-  parameter::try_setup_char_ratio(parameter::cur_params);
-  parameter::setup_camera_movement(parameter::cur_params);
+  parameter::try_setup_char_ratio(parameter::immutable_params.display);
+  parameter::setup_camera_movement(parameter::mutable_params.camera);
   control::setup_default_keymap(control::keymap);
 
   // setup buffer
@@ -116,7 +114,7 @@ void _input_thread() {
       if (chars != 1) continue;
 
       auto now = std::chrono::steady_clock::now();
-      if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_input).count() < DEBOUNCE_MS) continue;
+      if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_input).count() < parameter::immutable_params.control.debounce) continue;
       last_input = now;
 
       control::handle_user_input(buf[0]);
@@ -136,7 +134,7 @@ void _compute_thread(ves points, ves normals) {
     {
       std::unique_lock<std::mutex> lock(buffer_mtx);
       cv_compute.wait(lock, [] {
-        return buffer_cnt < BUFFER_SIZE || terminate;
+        return buffer_cnt < parameter::immutable_params.animation.buffer_size || terminate;
       });
       if (terminate) break;
     }
@@ -145,7 +143,7 @@ void _compute_thread(ves points, ves normals) {
     {
       LOCK(idx_mtx, hist_mtx);
       if (retrieve) {
-        uint64_t idx = compute_idx % BUFFER_SIZE;
+        uint64_t idx = compute_idx % parameter::immutable_params.animation.buffer_size;
         points = points_hist[idx];
         normals = normals_hist[idx];
         retrieve = false;
@@ -156,7 +154,7 @@ void _compute_thread(ves points, ves normals) {
     core::draw(canvas, points, normals);
     {
       LOCK(idx_mtx, buffer_mtx);
-      uint64_t idx = (compute_idx++) % BUFFER_SIZE;
+      uint64_t idx = (compute_idx++) % parameter::immutable_params.animation.buffer_size;
       buffer[idx] = canvas;
       buffer_cnt += 1;
       points_hist[idx] = points;
@@ -167,9 +165,9 @@ void _compute_thread(ves points, ves normals) {
     // update data points for next frame
     {
       using namespace parameter;
-      COND_LOCK(session::is_interactive, parameter::params_mtx);
-      rps = parameter::cur_params.shape.rps;
-      fps = parameter::cur_params.display.fps;
+      COND_LOCK(is_interactive, params_mtx);
+      rps = mutable_params.shape.rps;
+      fps = immutable_params.display.fps;
     }
     for (auto& r : rps) r /= fps;
     core::rotate_shape(points, normals, rps);
@@ -199,7 +197,7 @@ void _output_thread() {
     // copy frame from buffer and output to screen
     {
       LOCK(buffer_mtx);
-      uint64_t idx = (output_idx++) % BUFFER_SIZE;
+      uint64_t idx = (output_idx++) % parameter::immutable_params.animation.buffer_size;
       canvas = buffer[idx];
       buffer_cnt -= 1;
     }
@@ -207,11 +205,7 @@ void _output_thread() {
     core::update_screen(canvas, old_canvas);
 
     // sleep for 1/fps
-    {
-      using namespace parameter;
-      COND_LOCK(session::is_interactive, parameter::params_mtx);
-      fps = cur_params.display.fps;
-    }
+    fps = parameter::immutable_params.display.fps;
     std::this_thread::sleep_for(std::chrono::milliseconds((int64_t) (1000 / fps)));
   }
 }

@@ -54,10 +54,13 @@ void test_termios() {
   
   std::signal(SIGINT, session::sigint_handler);
   session::terminal_mode_set();
-  parameter::try_setup_char_ratio(parameter::cur_params);
-  parameter::setup_camera_movement(parameter::cur_params);
+  parameter::try_setup_char_ratio(parameter::immutable_params.display);
+  parameter::setup_camera_movement(parameter::mutable_params.camera);
 
   // setup buffer
+  session::buffer.resize(parameter::immutable_params.animation.buffer_size);
+  session::points_hist.resize(parameter::immutable_params.animation.buffer_size);
+  session::normals_hist.resize(parameter::immutable_params.animation.buffer_size);
   auto [hei, wid] = core::get_terminal_size();
   for (auto& canvas : session::buffer) {
     canvas.resize(wid);
@@ -86,10 +89,10 @@ void test_toml() {
   
   std::signal(SIGINT, session::sigint_handler);
   session::terminal_mode_set();
-  parameter::try_setup_char_ratio(parameter::cur_params);
-  parameter::setup_camera_movement(parameter::cur_params);
+  parameter::try_setup_char_ratio(parameter::immutable_params.display);
+  parameter::setup_camera_movement(parameter::mutable_params.camera);
 
-  vst errors = config::parse_config(parameter::cur_params, control::keymap, config_file);
+  vst errors = config::parse_config(parameter::mutable_params, parameter::immutable_params, control::keymap, config_file);
 
   if (!errors.empty()) {
     std::cout << "Error parsing config file:" << std::endl;
@@ -100,8 +103,10 @@ void test_toml() {
     exit(1);
   }
 
+  session::buffer.resize(parameter::immutable_params.animation.buffer_size);
+  session::points_hist.resize(parameter::immutable_params.animation.buffer_size);
+  session::normals_hist.resize(parameter::immutable_params.animation.buffer_size);
 
-  // setup buffer
   auto [hei, wid] = core::get_terminal_size();
   for (auto& canvas : session::buffer) {
     canvas.resize(wid);
@@ -120,7 +125,7 @@ void test_toml() {
 
   session::terminal_mode_reset();
 
-  config::serialize_config(parameter::cur_params, control::keymap, write_to);
+  config::serialize_config(parameter::mutable_params, parameter::immutable_params, control::keymap, write_to);
 }
 
 int main(int argc, char** argv) {

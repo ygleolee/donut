@@ -20,6 +20,13 @@ range = 100.0
 char_ratio = 1.71
 fps = 30
 
+[animation]
+buffer_size = 50
+fallback_keep = 5
+
+[control]
+debounce = 50
+
 [keymap]
 RESET_TO_DEFAULT = "r"
 ZERO_ROTATION    = "0"
