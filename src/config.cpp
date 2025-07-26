@@ -42,7 +42,7 @@ void parse_light_config(toml::table* light_config, parameter::params_t& params, 
         params.light.type = POINT;
       }
       else {
-        errors.push_back("Invalid light.type, must be \"PARALLEL\" or \"POINT\"");
+        errors.push_back("Invalid light.type: must be \"PARALLEL\" or \"POINT\"");
       }
     }
   }
@@ -53,7 +53,7 @@ void parse_light_config(toml::table* light_config, parameter::params_t& params, 
       params.light.parallel = res.first;
     }
     else {
-      errors.push_back("Invalid light.parallel, expected an array of 3 floating point numbers");
+      errors.push_back("Invalid light.parallel: expected an array of 3 floating point numbers");
     }
   }
 
@@ -64,7 +64,7 @@ void parse_light_config(toml::table* light_config, parameter::params_t& params, 
       params.light.point = res.first;
     }
     else {
-      errors.push_back("Invalid light.point, expected an array of 3 floating point numbers");
+      errors.push_back("Invalid light.point: expected an array of 3 floating point numbers");
     }
   }
 
@@ -74,7 +74,7 @@ void parse_light_config(toml::table* light_config, parameter::params_t& params, 
       params.light.rps = res.first;
     }
     else {
-      errors.push_back("Invalid light.rps, expected an array of 3 floating point numbers");
+      errors.push_back("Invalid light.rps: expected an array of 3 floating point numbers");
     }
   }
 
@@ -83,7 +83,7 @@ void parse_light_config(toml::table* light_config, parameter::params_t& params, 
       params.light.rpp = *rpp;
     }
     else {
-      errors.push_back("Invalid light.rpp, expected a floating point number");
+      errors.push_back("Invalid light.rpp: expected a floating point number");
     }
   }
 }
@@ -93,7 +93,7 @@ void parse_camera_config(toml::table* camera_config, parameter::params_t& params
       params.camera.min = *min;
     }
     else {
-      errors.push_back("Invalid camera.min, expected a floating point number");
+      errors.push_back("Invalid camera.min: expected a floating point number");
     }
   }
   if (auto max_ptr = camera_config->get("max")) {
@@ -101,7 +101,7 @@ void parse_camera_config(toml::table* camera_config, parameter::params_t& params
       params.camera.max = *max;
     }
     else {
-      errors.push_back("Invalid camera.max, expected a floating point number");
+      errors.push_back("Invalid camera.max: expected a floating point number");
     }
   }
   if (auto steps_ptr = camera_config->get("steps")) {
@@ -109,7 +109,7 @@ void parse_camera_config(toml::table* camera_config, parameter::params_t& params
       params.camera.steps = *steps;
     }
     else {
-      errors.push_back("Invalid camera.steps, expected a positive integer");
+      errors.push_back("Invalid camera.steps: expected a positive integer");
     }
   }
 }
@@ -121,7 +121,7 @@ void parse_shape_config(toml::table* shape_config, parameter::params_t& params, 
       params.shape.rps = res.first;
     }
     else {
-      errors.push_back("Invalid shape.rps, expected an array of 3 floating point numbers");
+      errors.push_back("Invalid shape.rps: expected an array of 3 floating point numbers");
     }
   }
   if (auto delta_ptr = shape_config->get("delta")) {
@@ -129,7 +129,7 @@ void parse_shape_config(toml::table* shape_config, parameter::params_t& params, 
       params.shape.delta = *delta;
     }
     else {
-      errors.push_back("Invalid shape.delta, expected a floating point number");
+      errors.push_back("Invalid shape.delta: expected a floating point number");
     }
   }
 }
@@ -140,7 +140,7 @@ void parse_display_config(toml::table* display_config, parameter::params_t& para
       params.display.grayscale = *grayscale;
     }
     else {
-      errors.push_back("Invalid display.grayscale, expected a string with ascii characters");
+      errors.push_back("Invalid display.grayscale: expected a string with ascii characters");
     }
   }
   if (auto range_ptr = display_config->get("range")) {
@@ -148,7 +148,7 @@ void parse_display_config(toml::table* display_config, parameter::params_t& para
       params.display.range = *range;
     }
     else {
-      errors.push_back("Invalid display.range, expected a floating point number");
+      errors.push_back("Invalid display.range: expected a floating point number");
     }
   }
   if (auto char_ratio_ptr = display_config->get("char_ratio")) {
@@ -156,7 +156,7 @@ void parse_display_config(toml::table* display_config, parameter::params_t& para
       params.display.char_ratio = *char_ratio;
     }
     else {
-      errors.push_back("Invalid display.char_ratio, expected a floating point number");
+      errors.push_back("Invalid display.char_ratio: expected a floating point number");
     }
   }
   if (auto fps_ptr = display_config->get("fps")) {
@@ -164,7 +164,7 @@ void parse_display_config(toml::table* display_config, parameter::params_t& para
       params.display.fps = *fps;
     }
     else {
-      errors.push_back("Invalid display.fps, expected a positive integer");
+      errors.push_back("Invalid display.fps: expected a positive integer");
     }
   }
 }
@@ -183,12 +183,12 @@ void parse_keymap_config(toml::table* keymap_config, std::unordered_map<char, co
       }
     }
     else {
-      errors.push_back("Invalid keymap, mapped key must be a string with a single character");
+      errors.push_back("Invalid keymap for " + op + ": mapped key must be a string with a single character");
     }
   }
 }
 
-vst parse_config(parameter::params_t& params, std::unordered_map<char, control::operations>& keymap, std::string& filename) {
+vst parse_config(parameter::params_t& params, std::unordered_map<char, control::operations>& keymap, const std::string& filename) {
   vst errors;
   try {
     auto config = toml::parse_file(filename);
@@ -262,6 +262,7 @@ void serialize_config(const parameter::params_t& params, const std::unordered_ma
 
   // Write to file
   std::ofstream out(filename);
+  out << std::fixed << std::setprecision(2);
   out << config;
 }
 

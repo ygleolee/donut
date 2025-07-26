@@ -2,6 +2,7 @@
 
 #include "donut/geometry.hpp"
 #include "donut/parameter.hpp"
+#include "donut/session.hpp"
 
 #include <algorithm>
 #include <format>
@@ -34,16 +35,14 @@ void update_screen(grd& canvas, grd& old_canvas) {
   static int hei = 0;
 
   if (init) {
-    LOCK(parameter::params_mtx);
+    COND_LOCK(session::is_interactive, parameter::params_mtx);
     wid = canvas.size();
     hei = canvas[0].size();
     init = false;
   }
 
-  // std::string output = "";
-  // output.reserve(wid * hei / 20); // NOTE: rough estimate, maybe want to calculate based on rps
-  // output += "\x1b[H";
   std::string output = "\x1b[H";
+  output.reserve(wid * hei / 20); // rough estimate, maybe want to calculate based on rps
   for (int i = 0; i < wid; ++i) {
     for (int j = 0; j < hei; ++j) {
       char cur = canvas[i][j];
@@ -63,8 +62,8 @@ void draw(grd& canvas, ves& points, ves& normals) {
   light_type type;
   vec light;
   dbl z;
-  dbl range;
-  dbl char_ratio;
+  static dbl range = 0;
+  static dbl char_ratio = 0;
   static bool init = true;
   static std::string grayscale = "";
   static int len = 0;
@@ -74,7 +73,9 @@ void draw(grd& canvas, ves& points, ves& normals) {
 
   if (init) {
     using namespace parameter;
-    LOCK(params_mtx);
+    COND_LOCK(session::is_interactive, parameter::params_mtx);
+    range = cur_params.display.range;
+    char_ratio = cur_params.display.char_ratio;
     grayscale = cur_params.display.grayscale;
     len = grayscale.size();
     init = false;
@@ -85,12 +86,10 @@ void draw(grd& canvas, ves& points, ves& normals) {
 
   {
     using namespace parameter;
-    LOCK(params_mtx);
+    COND_LOCK(session::is_interactive, parameter::params_mtx);
     type = cur_params.light.type;
     light = (type == PARALLEL) ? geometry::neg(cur_params.light.parallel) : cur_params.light.point;
     z = cur_params.camera.locs[cur_params.camera.idx];
-    range = cur_params.display.range;
-    char_ratio = cur_params.display.char_ratio;
   }
 
   for (int i = 0; i < wid; ++i) {

@@ -8,30 +8,33 @@
 #include <iostream>
 
 // Available parameters
-// display:
-//    range: borders of the real plane ([-range, range] x [-range, range])
-//    char_ratio: character height/width
-//    fps: frames per second of animation
 // camera:
 //    z: camera z-coord
 //    min/max: range the z value can be adjusted in
-//    granularity: how many presses to divide [min, max] into (the spaces will be linearly decaying)
-//    ...
+//    steps: how many steps to divide [min, max] into (the spaces will be linearly decaying)
 // light:
 //    type: parallel / point
 //    parallel: vec
 //    point: vec
-//    ...
 // shape:
 //    rps: radian per sec
 //    delta: num to increase/decrease for each key press
-//    ...
+// display:
+//    range: borders of the real plane ([-range, range] x [-range, range])
+//    char_ratio: character height/width
+//    fps: frames per second of animation
+// animation:
+//    buffer_size: size of buffer
+//    fallback_keep: how many frames to keep after breaking change
+// control:
+//    debounce: time (ms) until next keypress to be accepted
+
 
 namespace donut::parameter {
 
 std::mutex params_mtx;
 
-const struct params default_params = {
+const params_t default_params = {
   .light = {
     .type = PARALLEL,
     .parallel = { 1, -4, -4 },
@@ -58,15 +61,14 @@ const struct params default_params = {
   },
 };
 
-struct params cur_params = default_params;
+params_t cur_params = default_params;
 
-void try_setup_char_ratio(struct params& params) {
+void try_setup_char_ratio(params_t& params) {
   const char* val = std::getenv("CHAR_RATIO");
   if (val != nullptr) {
     char* endptr = nullptr;
     double ratio = std::strtod(val, &endptr);
     errno = 0; // reset errno before call
-    // Error checking
     if (endptr == val || errno == ERANGE || *endptr != '\0') {
       return;
     }
@@ -75,8 +77,8 @@ void try_setup_char_ratio(struct params& params) {
 }
 
 // [min, min + 1, min + (1 + d), min + (1 + 2d), ..., max]
-void setup_camera_movement(struct params& params) {
-  struct camera& cam = params.camera;
+void setup_camera_movement(params_t& params) {
+  auto& cam = params.camera;
   if (cam.max - cam.min < cam.steps || cam.steps <= 2) {
     cam = default_params.camera;
   }
@@ -93,7 +95,7 @@ void setup_camera_movement(struct params& params) {
   cam.idx = 0;
 }
 
-void read_config(struct params& params, std::string filename) {
+void read_config(params_t& params, std::string filename) {
   try {
     // shape params
     auto config = toml::parse_file(filename);

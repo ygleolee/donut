@@ -24,18 +24,18 @@ enum operations {
   NEXT_FRAME,
   CAMERA_FORWARD,
   CAMERA_BACKWARD,
-  SHOW_CONFIG,
   COMMAND_HISTORY,
+  SHOW_CONFIG,
   EXPORT_CONFIG,
 };
 
 extern const std::unordered_map<std::string, operations> operations_map;
 extern const std::unordered_map<operations, std::string> reverse_operations_map;
-extern std::unordered_map<char, operations> key_mappings;
+extern std::unordered_map<char, operations> keymap;
 
 void setup_default_keymap(std::unordered_map<char, operations>& keymap);
 
 void invalidate_computed_frames(int keep); // move compute_idx to n away from output_idx for responsiveness
-void handle_user_input(int read, char buf[3]);
+void handle_user_input(char key);
 
 }

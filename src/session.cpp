@@ -13,7 +13,7 @@
 
 namespace donut::session {
 
-const int DEBOUNCE_MS = 50;
+constexpr int DEBOUNCE_MS = 50;
 
 std::atomic<bool> terminate(false);
 std::atomic<int> advance(-1); // -1: keep going, >=0: play that many frames and stop
@@ -33,6 +33,8 @@ bool retrieve = false;
 
 std::condition_variable cv_compute;
 std::condition_variable cv_output;
+
+bool is_interactive = false;
 
 termios orig;
 
@@ -66,7 +68,7 @@ void entry() { // specify shape, params (specified in cli or config file)
   
   parameter::try_setup_char_ratio(parameter::cur_params);
   parameter::setup_camera_movement(parameter::cur_params);
-  control::setup_default_keymap(control::key_mappings);
+  control::setup_default_keymap(control::keymap);
 
   // setup buffer
   auto [wid, hei] = core::get_terminal_size();
@@ -94,7 +96,6 @@ void entry() { // specify shape, params (specified in cli or config file)
   output_thread.join();
   compute_thread.join();
 
-
   terminal_mode_reset();
 }
 
@@ -105,18 +106,20 @@ void _input_thread() {
   while (!terminate) {
     FD_ZERO(&readfds);
     FD_SET(STDIN_FILENO, &readfds);
+
     timeval timeout = {0, 100000}; // 100 ms
     int ready = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &timeout);
 
     if (ready > 0 && FD_ISSET(STDIN_FILENO, &readfds)) {
       char buf[3];
       ssize_t chars = read(STDIN_FILENO, buf, sizeof(buf));
+      if (chars != 1) continue;
 
       auto now = std::chrono::steady_clock::now();
       if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_input).count() < DEBOUNCE_MS) continue;
       last_input = now;
 
-      control::handle_user_input(chars, buf);
+      control::handle_user_input(buf[0]);
     }
   }
 }
@@ -164,7 +167,7 @@ void _compute_thread(ves points, ves normals) {
     // update data points for next frame
     {
       using namespace parameter;
-      LOCK(params_mtx);
+      COND_LOCK(session::is_interactive, parameter::params_mtx);
       rps = parameter::cur_params.shape.rps;
       fps = parameter::cur_params.display.fps;
     }
@@ -206,7 +209,7 @@ void _output_thread() {
     // sleep for 1/fps
     {
       using namespace parameter;
-      LOCK(params_mtx);
+      COND_LOCK(session::is_interactive, parameter::params_mtx);
       fps = cur_params.display.fps;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds((int64_t) (1000 / fps)));

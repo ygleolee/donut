@@ -8,7 +8,7 @@
 
 namespace donut::session {
 
-const int BUFFER_SIZE = 50;
+constexpr int BUFFER_SIZE = 50;
 
 extern std::atomic<bool> terminate;
 extern std::atomic<int> advance;
@@ -23,6 +23,8 @@ extern uint64_t output_idx;
 
 extern std::mutex hist_mtx;
 extern bool retrieve;
+
+extern bool is_interactive;
 
 void sigint_handler(int);
 

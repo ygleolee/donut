@@ -6,7 +6,7 @@
 
 namespace donut::parameter {
 
-using params_light_t = struct light {
+using light_params_t = struct {
   light_type type;
   vec parallel;
   vec point;
@@ -14,7 +14,7 @@ using params_light_t = struct light {
   dbl rpp;
 };
 
-using params_camera_t = struct camera {
+using camera_params_t = struct {
   dbl min;
   dbl max;
   int steps;
@@ -22,32 +22,41 @@ using params_camera_t = struct camera {
   int idx;
 };
 
-using params_shape_t = struct shape {
+using shape_params_t = struct {
   vec rps;
   dbl delta; // change with one press
 };
 
-using params_display_t = struct display {
+using display_params_t = struct {
   std::string grayscale;
   dbl range;
   dbl char_ratio;
   int fps;
 };
 
-using params_t = struct params {
-  params_light_t light;
-  params_camera_t camera;
-  params_shape_t shape;
-  params_display_t display;
+// TODO: add these to config reading & handling
+using animation_params_t = struct {
+  int buffer_size;
+  int fallback_keep;
+};
+using control_params_t = struct {
+  int debounce;
+};
+
+using params_t = struct {
+  light_params_t light;
+  camera_params_t camera;
+  shape_params_t shape;
+  display_params_t display;
 };
 
 extern std::mutex params_mtx;
 
-extern const struct params default_params;
-extern struct params cur_params;
+extern const params_t default_params;
+extern params_t cur_params;
 
-void try_setup_char_ratio(struct params& params);
-void setup_camera_movement(struct params& params);
+void try_setup_char_ratio(params_t& params);
+void setup_camera_movement(params_t& params);
 void read_config();
 
 }

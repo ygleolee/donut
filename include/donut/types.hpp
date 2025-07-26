@@ -3,7 +3,13 @@
 #include <array>
 #include <vector>
 
-#define LOCK(...) std::scoped_lock lock(__VA_ARGS__)
+#define CONCAT_IMPL(a, b) a##b
+#define CONCAT(a, b) CONCAT_IMPL(a, b)
+#define LOCK(...) \
+    std::scoped_lock CONCAT(_lock_, __LINE__)(__VA_ARGS__)
+#define COND_LOCK(cond, mtx) \
+    std::unique_lock<std::mutex> CONCAT(_lock_, __LINE__){mtx, std::defer_lock}; \
+    if (cond) CONCAT(_lock_, __LINE__).lock();
 
 using dbl = double;
 using vec = std::array<dbl, 3>;
