@@ -170,7 +170,37 @@ void parse_display_config(toml::table* display_config, parameter::display_params
   }
 }
 
-void parse_keymap_config(toml::table* keymap_config, std::unordered_map<char, control::operations>& keymap, vst& errors) {
+void parse_animation_config(toml::table* animation_config, animation_params_t& animation, vst& errors) {
+  if (auto buffer_size_ptr = animation_config->get("buffer_size")) {
+    if (auto buffer_size = buffer_size_ptr->value<unsigned int>()) {
+      animation.buffer_size = *buffer_size;
+    }
+    else {
+      errors.push_back("Invalid animation.buffer_size: expected a positive integer");
+    }
+  }
+  if (auto fallback_keep_ptr = animation_config->get("fallback_keep")) {
+    if (auto fallback_keep = fallback_keep_ptr->value<unsigned int>()) {
+      animation.fallback_keep = *fallback_keep;
+    }
+    else {
+      errors.push_back("Invalid animation.fallback_keep: expected a positive integer");
+    }
+  }
+}
+
+void parse_control_config(toml::table* control_config, control_params_t& control, vst& errors) {
+  if (auto debounce_ptr = control_config->get("debounce")) {
+    if (auto debounce = debounce_ptr->value<unsigned int>()) {
+      control.debounce = *debounce;
+    }
+    else {
+      errors.push_back("Invalid control.debounce: expected a positive integer (milliseconds)");
+    }
+  }
+}
+
+void parse_keymap_config(toml::table* keymap_config, std::unordered_map<char, control::operations_t>& keymap, vst& errors) {
   using namespace control;
   for (const auto& [cmd, ch] : *keymap_config) {
     std::string op = std::string(cmd.str());
@@ -189,7 +219,7 @@ void parse_keymap_config(toml::table* keymap_config, std::unordered_map<char, co
   }
 }
 
-vst parse_config(mutable_params_t& mutable_params, immutable_params_t& immutable_params, std::unordered_map<char, control::operations>& keymap, const std::string& filename) {
+vst parse_config(mutable_params_t& mutable_params, immutable_params_t& immutable_params, std::unordered_map<char, control::operations_t>& keymap, const std::string& filename) {
   vst errors;
   try {
     auto config = toml::parse_file(filename);
@@ -228,7 +258,7 @@ vst parse_config(mutable_params_t& mutable_params, immutable_params_t& immutable
   return errors;
 }
 
-void serialize_config(const mutable_params_t& mutable_params, const immutable_params_t& immutable_params, const std::unordered_map<char, control::operations>& keymap, const std::string& filename) {
+void serialize_config(const mutable_params_t& mutable_params, const immutable_params_t& immutable_params, const std::unordered_map<char, control::operations_t>& keymap, const std::string& filename) {
   toml::table config;
 
   // [light]

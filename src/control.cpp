@@ -28,7 +28,7 @@
 
 namespace donut::control {
 
-const std::unordered_map<std::string, operations> operations_map = {
+const std::unordered_map<std::string, operations_t> operations_map = {
   { "RESET_TO_DEFAULT", RESET_TO_DEFAULT },
   { "ZERO_ROTATION", ZERO_ROTATION },
   { "INC_SHAPE_ROT_X", INC_SHAPE_ROT_X },
@@ -53,7 +53,7 @@ const std::unordered_map<std::string, operations> operations_map = {
   { "EXPORT_CONFIG", EXPORT_CONFIG },
 };
 
-const std::unordered_map<control::operations, std::string> reverse_operations_map = {
+const std::unordered_map<control::operations_t, std::string> reverse_operations_map = {
   { RESET_TO_DEFAULT, "RESET_TO_DEFAULT" },
   { ZERO_ROTATION, "ZERO_ROTATION" },
   { INC_SHAPE_ROT_X, "INC_SHAPE_ROT_X" },
@@ -78,7 +78,7 @@ const std::unordered_map<control::operations, std::string> reverse_operations_ma
   { EXPORT_CONFIG, "EXPORT_CONFIG" },
 };
 
-std::unordered_map<char, operations> keymap = {
+std::unordered_map<char, operations_t> keymap = {
   { 'r', RESET_TO_DEFAULT  },
   { '0', ZERO_ROTATION     },
   { 'x', INC_SHAPE_ROT_X   },

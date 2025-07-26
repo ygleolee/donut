@@ -1,9 +1,9 @@
 #include "donut/session.hpp"
 
+#include "donut/config.hpp"
 #include "donut/core.hpp"
 #include "donut/control.hpp"
 #include "donut/parameter.hpp"
-#include "donut/shapes.hpp"
 
 #include <csignal>
 #include <iostream>
@@ -19,6 +19,10 @@ std::atomic<int> advance(-1); // -1: keep going, >=0: play that many frames and 
 std::mutex buffer_mtx;
 std::vector<grd> buffer;
 int buffer_cnt = 0;
+
+std::thread input_thread;
+std::thread output_thread;
+std::thread compute_thread;
 
 std::mutex idx_mtx; // NOTE: only for compute_idx
 uint64_t output_idx = 0;
@@ -49,9 +53,8 @@ void terminal_mode_set() {
 void terminal_mode_reset() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig);
 
-  std::cout << "\x1b[2J\x1b[H"; // clear screen
   std::cout << "\x1b[?25h";     // show cursor
-  std::cout << "\x1b[H";        // move cursor to home
+  std::cout << "\x1b[2J\x1b[H"; // clear screen
 }
 
 void sigint_handler(int) {
@@ -60,16 +63,29 @@ void sigint_handler(int) {
   cv_output.notify_all();
 }
 
-void entry() { // specify shape, params (specified in cli or config file)
-  std::signal(SIGINT, sigint_handler);
-  terminal_mode_set();
-  
+void entry(shape_data data, bool interactive, std::string config_path) {
+  // set interactive mode
+  is_interactive = interactive;
+
+  // set parameters
+  if (config_path.size() > 0) {
+    vst errors = config::parse_config(parameter::mutable_params, parameter::immutable_params, control::keymap, config_path);
+    if (!errors.empty()) {
+      std::cout << "Error(s) parsing config file " << config_path << ":" << std::endl;
+      for (int i=1; i<=errors.size(); ++i) {
+        std::cout << "  " << i << ". " << errors[i-1] << std::endl;
+      }
+      exit(1);
+    }
+  }
   parameter::try_setup_char_ratio(parameter::immutable_params.display);
   parameter::setup_camera_movement(parameter::mutable_params.camera);
-  control::setup_default_keymap(control::keymap);
 
   // setup buffer
-  auto [wid, hei] = core::get_terminal_size();
+  session::buffer.resize(parameter::immutable_params.animation.buffer_size);
+  session::points_hist.resize(parameter::immutable_params.animation.buffer_size);
+  session::normals_hist.resize(parameter::immutable_params.animation.buffer_size);
+  auto [hei, wid] = core::get_terminal_size();
   for (auto& canvas : buffer) {
     canvas.resize(wid);
     for (auto& row : canvas) {
@@ -77,22 +93,23 @@ void entry() { // specify shape, params (specified in cli or config file)
     }
   }
 
-  // get params (either default of read from file)
-  // if (config files exists) {
-  // }
+  // setup terminal
+  std::signal(SIGINT, sigint_handler);
+  terminal_mode_set();
 
-  // obtain shape
-  dbl r1 = 60;
-  dbl r2 = 30;
-  auto [points, normals] = shapes::donut(r1, r2);
+  // begin animation
+  auto [points, normals] = data;
+  compute_thread = std::thread(_compute_thread, points, normals);
+  output_thread = std::thread(_output_thread);
+  if (is_interactive) {
+    input_thread = std::thread(_input_thread);
+  }
 
-  std::thread input_thread(_input_thread);
-  std::thread output_thread(_output_thread);
-  std::thread compute_thread(_compute_thread, points, normals);
-
-  input_thread.join();
-  output_thread.join();
   compute_thread.join();
+  output_thread.join();
+  if (is_interactive) {
+    input_thread.join();
+  }
 
   terminal_mode_reset();
 }

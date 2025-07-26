@@ -31,7 +31,7 @@ void sigint_handler(int);
 void terminal_mode_set();
 void terminal_mode_reset();
 
-void entry();
+void entry(shape_data data, bool interactive = false, std::string config_path = "");
 
 void _input_thread();
 void _output_thread();

@@ -4,7 +4,7 @@
 
 namespace donut::control {
 
-enum operations {
+enum operations_t {
   RESET_TO_DEFAULT,
   ZERO_ROTATION,
   INC_SHAPE_ROT_X,
@@ -29,11 +29,9 @@ enum operations {
   EXPORT_CONFIG,
 };
 
-extern const std::unordered_map<std::string, operations> operations_map;
-extern const std::unordered_map<operations, std::string> reverse_operations_map;
-extern std::unordered_map<char, operations> keymap;
-
-void setup_default_keymap(std::unordered_map<char, operations>& keymap);
+extern const std::unordered_map<std::string, operations_t> operations_map;
+extern const std::unordered_map<operations_t, std::string> reverse_operations_map;
+extern std::unordered_map<char, operations_t> keymap;
 
 void invalidate_computed_frames(int keep); // move compute_idx to n away from output_idx for responsiveness
 void handle_user_input(char key);
