@@ -1,52 +1,53 @@
-[light]
-type = "PARALLEL"
-parallel = [1.0, -4.0, -4.0]
-point = [100.0, 40.0, 300.0]
-rps = [0.0, 0.0, 0.0]
-rpp = 0.1
-
-[camera]
-min = 200.0
-max = 800.0
-steps = 12
-
-[shape]
-rps = [0.98, 0.64, 0.73]
-delta = 0.2
-
-[display]
-grayscale = ".......,,,--~~;;==**#$@ "
-range = 100.0
-char_ratio = 1.71
-fps = 30
-
 [animation]
 buffer_size = 50
 fallback_keep = 5
 
-[control]
+[camera]
+max = 800.0
+min = 200.0
+steps = 12
+
+[contorl]
 debounce = 50
 
+[display]
+char_ratio = 1.71
+fps = 30
+grayscale = '.......,,,,,~~;;==**#$@ '
+range = 100.0
+
+[light]
+parallel = [ 1.0, -4.0, -4.0 ]
+point = [ 100.0, 40.0, 300.0 ]
+rpp = 0.1
+rps = [ 0.0, 0.0, 0.0 ]
+type = 'PARALLEL'
+
+[shape]
+delta = 0.2
+rps = [ 0.508, 0.384, 0.693 ]
+
 [keymap]
-RESET_TO_DEFAULT = "r"
-ZERO_ROTATION    = "0"
-INC_SHAPE_ROT_X  = "x"
-DEC_SHAPE_ROT_X  = "X"
-INC_SHAPE_ROT_Y  = "y"
-DEC_SHAPE_ROT_Y  = "Y"
-INC_SHAPE_ROT_Z  = "z"
-DEC_SHAPE_ROT_Z  = "Z"
-INC_LIGHT_ROT_X  = "w"
-DEC_LIGHT_ROT_X  = "s"
-INC_LIGHT_ROT_Y  = "a"
-DEC_LIGHT_ROT_Y  = "d"
-INC_LIGHT_ROT_Z  = "q"
-DEC_LIGHT_ROT_Z  = "e"
-LIGHT_TOGGLE_TYPE = "p"
-START_PAUSE      = " "
-NEXT_FRAME       = "f"
-CAMERA_FORWARD   = "j"
-CAMERA_BACKWARD  = "k"
-COMMAND_HISTORY  = "h"
-SHOW_CONFIG      = "C"
-EXPORT_CONFIG    = "E"
+CAMERA_BACKWARD = 'k'
+CAMERA_FORWARD = 'j'
+COMMAND_HISTORY = 'h'
+DEC_LIGHT_ROT_X = 's'
+DEC_LIGHT_ROT_Y = 'd'
+DEC_LIGHT_ROT_Z = 'e'
+DEC_SHAPE_ROT_X = 'X'
+DEC_SHAPE_ROT_Y = 'Y'
+DEC_SHAPE_ROT_Z = 'Z'
+EXPORT_CONFIG = 'E'
+INC_LIGHT_ROT_X = 'w'
+INC_LIGHT_ROT_Y = 'a'
+INC_LIGHT_ROT_Z = 'q'
+INC_SHAPE_ROT_X = 'x'
+INC_SHAPE_ROT_Y = 'y'
+INC_SHAPE_ROT_Z = 'z'
+LIGHT_TOGGLE_TYPE = 'p'
+NEXT_FRAME = 'f'
+RESET_TO_DEFAULT = 'r'
+SHOW_CONFIG = 'C'
+START_PAUSE = ' '
+ZERO_ROTATION = '0'
+

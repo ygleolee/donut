@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <mutex>
 #include <cstdlib>
-#include <iostream>
 
 // Available parameters
 // camera:
@@ -29,7 +28,6 @@
 // control:
 //    debounce: time (ms) until next keypress to be accepted
 
-
 namespace donut::parameter {
 
 std::mutex params_mtx;
@@ -50,14 +48,14 @@ const mutable_params_t mutable_params_default = {
     .idx = 0,
   },
   .shape = {
-    .rps = { 0.98, 0.64, 0.73 },
+    .rps = { 0.508, 0.384, 0.693 },
     .delta = 0.2,
   },
 };
 
 const immutable_params_t immutable_params_default = {
   .display = {
-    .grayscale = ".......,,,--~~;;==**#$@ ",
+    .grayscale = ".......,,,,,~~;;==**#$@ ",
     .range = 100.0,
     .char_ratio = 1.71,
     .fps = 30,

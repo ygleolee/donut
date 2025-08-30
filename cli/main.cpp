@@ -38,7 +38,7 @@ std::string try_get_config_path() {
 }
 
 int main(int argc, char** argv) {
-  CLI::App app{"donut"};
+  CLI::App app{"donut: a terminal animation program!"};
 
   // global options
   bool interactive = false;
@@ -46,51 +46,52 @@ int main(int argc, char** argv) {
   app.add_flag("-i,--interactive", interactive, "interactive mode");
   app.add_option("-c,--config", config_path, "configuration file")->type_name("<filename>");
 
-  // shapes as subcommands
+  shape_data data = donut::shapes::donut(60.0, 30.0);
 
-  // donut
-  auto donut_cmd = app.add_subcommand("donut");
-  double donut_r1 = 60.0, donut_r2 = 30.0;
-  donut_cmd->add_option("--r1", donut_r1, "major radius");
-  donut_cmd->add_option("--r2", donut_r2, "minor radius");
+  // // shapes as subcommands
 
-  // mister donut
-  auto mister_donut_cmd = app.add_subcommand("mister_donut");
-  double mister_donut_r1 = 60.0, mister_donut_r2 = 24.0;
-  int mister_donut_n = 8;
-  mister_donut_cmd->add_option("--r1", mister_donut_r1, "major radius");
-  mister_donut_cmd->add_option("--r2", mister_donut_r2, "spheres radius");
-  mister_donut_cmd->add_option("--n", mister_donut_n, "number of spheres");
+  // // donut
+  // auto donut_cmd = app.add_subcommand("donut");
+  // double donut_r1 = 60.0, donut_r2 = 30.0;
+  // donut_cmd->add_option("--r1", donut_r1, "major radius");
+  // donut_cmd->add_option("--r2", donut_r2, "minor radius");
 
-  // cuboid
-  auto cuboid_cmd = app.add_subcommand("cuboid");
-  double cuboid_w = 60.0, cuboid_h = 90.0, cuboid_l = 70.0;
-  cuboid_cmd->add_option("--w", cuboid_w, "width");
-  cuboid_cmd->add_option("--h", cuboid_h, "height");
-  cuboid_cmd->add_option("--l", cuboid_l, "length");
+  // // mister donut
+  // auto mister_donut_cmd = app.add_subcommand("mister_donut");
+  // double mister_donut_r1 = 60.0, mister_donut_r2 = 24.0;
+  // int mister_donut_n = 8;
+  // mister_donut_cmd->add_option("--r1", mister_donut_r1, "major radius");
+  // mister_donut_cmd->add_option("--r2", mister_donut_r2, "spheres radius");
+  // mister_donut_cmd->add_option("--n", mister_donut_n, "number of spheres");
 
-  // ellipsoid
-  auto ellipsoid_cmd = app.add_subcommand("ellipsoid");
-  double ellipsoid_w = 60.0, ellipsoid_h = 60.0, ellipsoid_l = 60.0;
-  ellipsoid_cmd->add_option("--w", ellipsoid_w, "width");
-  ellipsoid_cmd->add_option("--h", ellipsoid_h, "height");
-  ellipsoid_cmd->add_option("--l", ellipsoid_l, "length");
+  // // cuboid
+  // auto cuboid_cmd = app.add_subcommand("cuboid");
+  // double cuboid_w = 60.0, cuboid_h = 90.0, cuboid_l = 70.0;
+  // cuboid_cmd->add_option("--w", cuboid_w, "width");
+  // cuboid_cmd->add_option("--h", cuboid_h, "height");
+  // cuboid_cmd->add_option("--l", cuboid_l, "length");
+
+  // // ellipsoid
+  // auto ellipsoid_cmd = app.add_subcommand("ellipsoid");
+  // double ellipsoid_w = 60.0, ellipsoid_h = 60.0, ellipsoid_l = 60.0;
+  // ellipsoid_cmd->add_option("--w", ellipsoid_w, "width");
+  // ellipsoid_cmd->add_option("--h", ellipsoid_h, "height");
+  // ellipsoid_cmd->add_option("--l", ellipsoid_l, "length");
+
+  // if (*mister_donut_cmd) {
+  //   data = donut::shapes::mister_donut(mister_donut_r1, mister_donut_r2, mister_donut_n);
+  // }
+  // else if (*cuboid_cmd) {
+  //   data = donut::shapes::cuboid(cuboid_w, cuboid_h, cuboid_l);
+  // }
+  // else if (*ellipsoid_cmd) {
+  //   data = donut::shapes::ellipsoid(ellipsoid_w, ellipsoid_h, ellipsoid_l);
+  // }
+  // else { // default to donut
+  //   data = donut::shapes::donut(donut_r1, donut_r2);
+  // }
 
   CLI11_PARSE(app, argc, argv);
-
-  shape_data data;
-  if (*mister_donut_cmd) {
-    data = donut::shapes::mister_donut(mister_donut_r1, mister_donut_r2, mister_donut_n);
-  }
-  else if (*cuboid_cmd) {
-    data = donut::shapes::cuboid(cuboid_w, cuboid_h, cuboid_l);
-  }
-  else if (*ellipsoid_cmd) {
-    data = donut::shapes::ellipsoid(ellipsoid_w, ellipsoid_h, ellipsoid_l);
-  }
-  else { // default to donut
-    data = donut::shapes::donut(donut_r1, donut_r2);
-  }
 
   if (config_path == "") {
     config_path = try_get_config_path();

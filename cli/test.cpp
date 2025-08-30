@@ -128,6 +128,11 @@ void test_toml() {
   config::serialize_config(parameter::mutable_params, parameter::immutable_params, control::keymap, write_to);
 }
 
+void update_default_config() {
+  std::string write_to = "/Users/leo/Desktop/code/projects/donut/config/default.toml";
+  config::serialize_config(parameter::mutable_params_default, parameter::immutable_params_default, control::keymap, write_to);
+}
+
 int main(int argc, char** argv) {
   // test_terminal_size();
   // test_draw();
@@ -143,5 +148,7 @@ int main(int argc, char** argv) {
 
   // test_toml();
   
-  test_termios();
+  // test_termios();
+
+  update_default_config();
 }

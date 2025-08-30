@@ -24,7 +24,7 @@ std::thread input_thread;
 std::thread output_thread;
 std::thread compute_thread;
 
-std::mutex idx_mtx; // NOTE: only for compute_idx
+std::mutex idx_mtx;
 uint64_t output_idx = 0;
 uint64_t compute_idx = 0;
 

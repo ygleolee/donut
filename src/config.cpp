@@ -119,6 +119,7 @@ void parse_shape_config(toml::table* shape_config, parameter::shape_params_t& sh
   if (auto rps_ptr = shape_config->get("rps")) {
     auto res = parse_vec(*(rps_ptr->as_array()));
     if (res.second) {
+      std::cout << "here" << std::endl;
       shape.rps = res.first;
     }
     else {
@@ -251,7 +252,9 @@ vst parse_config(mutable_params_t& mutable_params, immutable_params_t& immutable
       parse_keymap_config(keymap_config, keymap, errors);
     }
   } catch (const toml::parse_error& err) {
-    std::cerr << "Parse error: " << err.description() << "\n  at " << err.source().begin << "\n";
+    std::stringstream ss;
+    ss << "Parse error: " << err.description() << " at " << err.source().begin << "\n";
+    errors.push_back(ss.str());
     return errors;
   }
 
