@@ -10,7 +10,7 @@ This program animates a rotating floating donut using ascii characters in the te
 ## Installation
 
 - install [xmake](https://xmake.io) if you haven't
-- `git clone --recurse-submodules`: clone the repository and dependencies
+- `git clone --recurse-submodules https://github.com/ygleolee/donut`: clone the repository and dependencies
 - `xmake build donut`: build the binary
 - `xmake install donut`, use `-o <path>` to install it to somewhere else. If you run into permission issues, try `--admin`.
 - done!
